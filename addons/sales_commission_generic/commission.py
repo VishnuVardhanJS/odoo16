@@ -5,24 +5,23 @@ from odoo import api, fields, models, _
 from odoo.exceptions import Warning, UserError, ValidationError
 import datetime
 
-
 class CreateCommisionInvoice(models.Model):
     _name = 'create.invoice.commission'
     _description = 'create invoice commission'
 
-    group_by = fields.Boolean('Group By', readonly=False)
-    date = fields.Date('Invoice Date', readonly=False)
+    group_by = fields.Boolean('Group By',readonly=False)
+    date = fields.Date('Invoice Date',readonly=False)
 
     def invoice_create(self):
         sale_invoice_ids = self.env['invoice.sale.commission'].browse(self._context.get('active_ids'))
-
+        
         cancle_commission = sale_invoice_ids.filtered(lambda t: t.state == 'cancel')
         if len(cancle_commission) > 0:
             raise UserError('You can not create invoice of cancled commission')
         else:
             if any(line.invoiced == True for line in sale_invoice_ids):
                 raise UserError('Invoiced Lines cannot be Invoiced Again.')
-
+                
             commission_discount_account = self.env.user.company_id.commission_discount_account
             if not commission_discount_account:
                 raise UserError('You have not configured commission Discount Account')
@@ -34,8 +33,8 @@ class CreateCommisionInvoice(models.Model):
 
                 for record in sale_invoice_ids:
                     partner_check.append(record.user_id.partner_id.id)
-                    group_dict.setdefault(record.user_id.partner_id.id, []).append(record)
-
+                    group_dict.setdefault(record.user_id.partner_id.id,[]).append(record)
+                
                 check = len(set(partner_check))
 
                 if check == 1:
@@ -43,80 +42,73 @@ class CreateCommisionInvoice(models.Model):
                         inv_lines = []
                         for inv_record in group_dict.get(dict_record):
                             inv_lines.append({
-                                'name': inv_record.name,
-                                'quantity': 1,
-                                'price_unit': inv_record.commission_amount,
+                                'name':inv_record.name,
+                                'quantity':1,
+                                'price_unit':inv_record.commission_amount,
                                 'account_id': commission_discount_account.id,
                             })
-                        partner = self.env['res.partner'].search([('id', '=', dict_record)])
+                        partner = self.env['res.partner'].search([('id','=',dict_record)])
                         inv_id = self.env['account.move'].create({
-                            'move_type': 'in_invoice',
-                            'partner_id': partner.id,
-                            'invoice_date': self.date if self.date else datetime.datetime.today().date(),
-                            'invoice_line_ids': [(0, 0, l) for l in inv_lines],
-                        })
+                                'move_type':'in_invoice',
+                                'partner_id':partner.id,
+                                'invoice_date':self.date if self.date else datetime.datetime.today().date(),
+                                'invoice_line_ids': [(0, 0, l) for l in inv_lines],
+                            })
                         moves.append(inv_id.id)
-                    sale_invoice_ids.write({'invoiced': True, 'invoice_id': moves[0], 'state': 'invoiced'})
+                    sale_invoice_ids.write({'invoiced': True,'invoice_id':moves[0],'state':'invoiced'})
                 else:
-                    raise UserError('You have not created an invoice with a different salesperson.')
+                    raise UserError('You have not created an invoice with a different salesperson.')                        
             else:
                 for commission_record in sale_invoice_ids:
                     inv_lines = []
                     inv_lines.append({
-                        'name': commission_record.name,
-                        'quantity': 1,
-                        'price_unit': commission_record.commission_amount,
+                        'name':commission_record.name,
+                        'quantity':1,
+                        'price_unit':commission_record.commission_amount,
                         'account_id': commission_discount_account.id,
                     })
 
                     inv_id = self.env['account.move'].create({
-                        'move_type': 'in_invoice',
+                        'move_type':'in_invoice',
                         'invoice_line_ids': [(0, 0, l) for l in inv_lines],
-                        'partner_id': commission_record.user_id.partner_id.id,
-                        'invoice_date': self.date if self.date else datetime.datetime.today().date()
+                        'partner_id':commission_record.user_id.partner_id.id,
+                        'invoice_date':self.date if self.date else datetime.datetime.today().date()
                     })
                     moves.append(inv_id.id)
                     commission_record.write({
-                        'invoiced': True,
-                        'invoice_id': inv_id.id,
-                        'state': 'invoiced'
+                        'invoiced':True,
+                        'invoice_id':inv_id.id,
+                        'state':'invoiced'
                     })
 
-
+        
 '''New class to handle sales commission configuration.'''
-
-
 class SaleCommission(models.Model):
     _name = 'sale.commission'
     _rec_name = 'comm_type'
     _description = 'Sale commission'
 
-    ######################Edited By Vishnu########################################################
-    user_ids = fields.Many2many('res.users', 'commision_rel_user', 'commision_id', 'user_id', string='Sales Person',
-                                help="Select sales person associated with this type of commission",
-                                required=True)
-    ######################Edited By Vishnu########################################################
-
+    user_ids = fields.Many2many('res.users', 'commision_rel_user', 'commision_id', 'user_id' , string='Sales Person',
+                                 help="Select sales person associated with this type of commission",
+                                 required=True)
     name = fields.Char('Commission Name', required=True)
     comm_type = fields.Selection([
         ('standard', 'Standard'),
         ('partner', 'Partner Based'),
         ('mix', 'Product/Category/Margin Based'),
         ('discount', 'Discount Based'),
-    ], 'Commission Type', copy=False, default='standard', help="Select the type of commission you want to apply.")
+        ], 'Commission Type', copy=False, default= 'standard', help="Select the type of commission you want to apply.")
     affiliated_partner_commission = fields.Float(string="Affiliated Partner Commission percentage")
     nonaffiliated_partner_commission = fields.Float(string="Non-Affiliated Partner Commission percentage")
     exception_ids = fields.One2many('sale.commission.exception', 'commission_id', string='Sales Commission Exceptions',
-                                    help="Sales commission exceptions",
-                                    )
+                                 help="Sales commission exceptions",
+                                 )
     rule_ids = fields.One2many('discount.commission.rules', 'commission_id', string='Commission Rules',
-                               help="Commission Rules",
-                               )
-    no_discount_commission_percentage = fields.Float(string="No Discount Commission %",
-                                                     help="Related Commission % when No discount", )
-    max_discount_commission_percentage = fields.Float(string="Max Discount %", help="Maximum Discount %", )
-    gt_discount_commission_percentage = fields.Float(string="Discount > 25% Commission %",
-                                                     help="Related Commission % when discount '%' is greater than 25%", )
+                                 help="Commission Rules",
+                                 )
+    no_discount_commission_percentage = fields.Float(string="No Discount Commission %",help="Related Commission % when No discount",)
+    max_discount_commission_percentage = fields.Float(string="Max Discount %",help="Maximum Discount %",)
+    gt_discount_commission_percentage = fields.Float(string="Discount > 25% Commission %",help="Related Commission % when discount '%' is greater than 25%",)         
     dis_commission_percentage = fields.Float(string="Discount >")
     standard_commission = fields.Float(string="Standard Commission percentage")
 
@@ -141,8 +133,6 @@ class SaleCommission(models.Model):
         if self.dis_commission_percentage > self.max_discount_commission_percentage:
             raise ValidationError(_('Max Discount is more then Discount Commission.'))
 
-    ######################Edited By Vishnu########################################################
-
     @api.constrains('user_ids')
     def _check_uniqueness(self):
         '''This method checks constraint for only one commission group for each sales person'''
@@ -151,45 +141,35 @@ class SaleCommission(models.Model):
             if len(ex_ids) > 1:
                 raise UserError('Only one commission type can be associated with each sales person!')
         return True
-    ######################Edited By Vishnu########################################################
+        
 
 
 '''New class to handle sales commission exceptions'''
-
-
 class SaleCommissionException(models.Model):
     _name = 'sale.commission.exception'
     _rec_name = 'commission_precentage'
     _description = 'Sale Commission Exception'
 
+
     based_on = fields.Selection([('Products', 'Products'),
-                                 ('Product Categories', 'Product Categories'),
-                                 ('Product Sub-Categories', 'Product Sub-Categories')], string="Based On",
-                                help="commission exception based on", default='Products',
-                                required=True)
+                                   ('Product Categories', 'Product Categories'),
+                                   ('Product Sub-Categories', 'Product Sub-Categories')], string="Based On",
+                                 help="commission exception based on", default='Products',
+                                 required=True)
     based_on_2 = fields.Selection([('Fix Price', 'Fix Price'),
                                    ('Margin', 'Margin'),
                                    ('Commission Exception', 'Commission Exception')], string="With",
-                                  help="commission exception based on", default='Fix Price',
-                                  required=True)
+                                 help="commission exception based on", default='Fix Price',
+                                 required=True)
     commission_id = fields.Many2one('sale.commission', string='Sale Commission',
-                                    help="Related Commission", )
+                                 help="Related Commission",)
     product_id = fields.Many2one('product.product', string='Product',
-                                 help="Exception based on product", )
-
-    ##########################Added By Vishnu##############################
-    # categ_id = fields.Many2one('product.category', string='Product Category',
-    #                            help="Exception based on product category", required=True)
-
-    categ_select = fields.Selection(selection='_get_categ_values', string='Product Category')
-
-    achieved_amount = fields.Float(string='Achieved Amount', compute='_compute_total_sales')
-
-    sale_user_id = fields.Many2one('res.users', string='Salesperson', store=True)
-    ##########################Added By Vishnu##############################
-
+                                 help="Exception based on product",)
+    categ_id = fields.Many2one('product.category', string='Product Category',
+                                 help="Exception based on product category")
+    
     sub_categ_id = fields.Many2one('product.category', string='Product Sub-Category',
-                                   help="Exception based on product sub-category")
+                                 help="Exception based on product sub-category")
     commission_precentage = fields.Float(string="Commission %")
     below_margin_commission = fields.Float(string="Below Margin Commission %")
     above_margin_commission = fields.Float(string="Above Margin Commission %")
@@ -197,15 +177,19 @@ class SaleCommissionException(models.Model):
     price = fields.Float(string="Target Price")
     price_percentage = fields.Float(string="Above price Commission %")
 
-    # percentage = fields.Float(string='Percentage', compute_sudo=True, compute='_compute_percentage')
+    category_store = fields.Many2many('product.category',string="Category store",compute="_compute_all_ids",store=True)
+
+    ##########################Added By Vishnu##############################
+
+    sale_user_id = fields.Many2one('res.users', string='Salesperson', store=True)
     percentage = fields.Float(string='Percentage', compute="_calculate_achieved_percentage")
+    achieved_amount = fields.Float(string='Achieved Amount', compute='_compute_total_sales')
+    ##########################Added By Vishnu##############################
 
-    category_store = fields.Many2many('product.category', string="Category store", compute="_compute_all_ids",
-                                      store=True)
 
-    ####################Added By Vishnu###########################################
+    ##########################Added By Vishnu##############################
 
-    @api.constrains('categ_select', 'sale_user_id', 'sub_categ_id', 'based_on')
+    @api.constrains('categ_id', 'sale_user_id', 'sub_categ_id', 'based_on')
     def _compute_total_sales(self):
         for record in self:
             if record.based_on == 'Product Sub-Categories':
@@ -217,7 +201,12 @@ class SaleCommissionException(models.Model):
                 total = sum(sales.mapped('price_total'))
                 record.achieved_amount = total
             elif record.based_on == 'Product Categories':
-                record.achieved_amount = 25000
+                categ_sales = self.env['sale.order.line'].search(
+                    [('product_id.categ_id.complete_name', 'ilike', "%" + record.categ_id.complete_name.replace(" ", "").split('/')[0] + "%"),
+                     ('order_id.user_id', '=', record.sale_user_id.id),
+                     ('state', '!=', 'cancel')])
+                categ_sales_total = sum(categ_sales.mapped('price_total'))
+                record.achieved_amount = categ_sales_total
             else:
                 record.achieved_amount = 0
 
@@ -229,64 +218,49 @@ class SaleCommissionException(models.Model):
                 rec.percentage += (rec.achieved_amount / rec.price) * 100
             except ZeroDivisionError:
                 rec.percentage = 0.0
+    ##########################Added By Vishnu##############################
 
-    @api.depends('categ_select')
-    def _get_categ_values(self):
-        category = []
-        select_categ = []
-        categ_fetch = self.env['product.category'].search([]).mapped('complete_name')
 
-        for categ in categ_fetch:
-            category.append(categ.replace(" ", "").split('/')[0])
-
-        category = list(set(category))
-
-        for categ_tuple in category:
-            select_categ.append((categ_tuple, categ_tuple))
-
-        return select_categ
-
-    ####################Added By Vishnu###########################################
-
-    @api.depends('based_on', 'sub_categ_id')
+    @api.depends('based_on','sub_categ_id','categ_id')
     def _compute_all_ids(self):
 
-        for line in self:
+        for line in self :
             category_lst = []
-            # if line.based_on == 'Product Categories':
-            #     category_lst.append(line.categ_id.id)
-            #
-            #     for child in line.categ_id.child_id:
-            #         if child.id not in category_lst:
-            #             category_lst.append(child.id)
-            #     category_store = ''
-            #     for num in category_lst:
-            #         category_store = category_store + ',' + str(num)
-            #     line.category_store = category_lst
-            if line.based_on == 'Product Sub-Categories':
+            if line.based_on == 'Product Categories':
+                category_lst.append(line.categ_id.id)
+
+                for child in line.categ_id.child_id:
+                    if child.id not in category_lst:
+                        category_lst.append(child.id)
+                category_store = ''
+                for num in category_lst :
+                    category_store = category_store + ','+ str(num)
+                line.category_store = category_lst
+            elif line.based_on == 'Product Sub-Categories':
+
                 for child in line.sub_categ_id.child_id:
                     if child.id not in category_lst:
                         category_lst.append(child.id)
 
+
                 category_store = ''
-                for num in category_lst:
-                    category_store = category_store + ',' + str(num)
+                for num in category_lst :
+                    category_store = category_store + ','+ str(num)
 
                 line.category_store = category_lst
 
-            else:
+            else : 
                 line.category_store = category_lst
 
 
 '''New class to handle discount based commission'''
-
-
 class DiscountCommissionRules(models.Model):
     _name = 'discount.commission.rules'
     _rec_name = 'discount_percentage'
     _description = 'Discount Commission Rules'
 
+
     commission_id = fields.Many2one('sale.commission', string='Sale Commission',
-                                    help="Related Commission", )
+                                 help="Related Commission",)
     discount_percentage = fields.Float(string="Discount %")
-    commission_percentage = fields.Float(string="Commission %")
+    commission_percentage = fields.Float(string="Commission %")    

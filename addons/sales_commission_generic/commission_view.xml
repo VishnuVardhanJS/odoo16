@@ -85,7 +85,7 @@
                     <field name="product_id" attrs="{'invisible': [('based_on','!=', 'Products')],
 													'required': [('based_on','==', 'Products')]}"/>
                     <field name="category_store" widget="many2many_tags" invisible="1"/>
-                    <field name="categ_select" attrs="{'invisible': [('based_on','!=', 'Product Categories')],
+                    <field name="categ_id" attrs="{'invisible': [('based_on','!=', 'Product Categories')],
 												   'required': [('based_on','==', 'Product Categories')]}"/>
                     <field name="sub_categ_id" attrs="{'invisible': [('based_on','!=', 'Product Sub-Categories')],
 													  'required': [('based_on','==', 'Product Sub-Categories')]}"/>
@@ -117,7 +117,7 @@
                                 <field name="based_on"/>
                                 <field name="based_on_2"/>
                                 <!--  <field name="order_category" invisible="1"/> -->
-                                <field name="categ_select"
+                                <field name="categ_id"
                                        attrs="{'invisible': [('based_on','!=', 'Product Categories')],'required': [('based_on','==', 'Product Categories')]}"/>
                                 <field name="product_id"
                                        attrs="{'invisible': [('based_on','!=', 'Products')],'required': [('based_on','==', 'Products')]}"/>

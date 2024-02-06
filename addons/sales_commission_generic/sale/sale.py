@@ -12,6 +12,11 @@ class SaleOrder(models.Model):
     commission_ids = fields.One2many('invoice.sale.commission', 'order_id', string='Sales Commissions',
                                      help="Sale Commission related to this order(based on sales person)")
 
+    ##########################Added By Vishnu##############################
+
+
+    ##########################Added By Vishnu##############################
+
     def get_exceptions(self, line, commission_brw):
         '''This method searches exception for any product line.
            @return : List of ids for all exception for particular product line.'''
@@ -95,6 +100,12 @@ class SaleOrder(models.Model):
         exception_obj = self.env['sale.commission.exception']
         invoice_commission_obj = self.env['invoice.sale.commission']
         invoice_commission_ids = []
+
+        ##########################Added By Vishnu##############################
+
+
+        ##########################Added By Vishnu##############################
+
         for line in order.order_line:
 
             invoice_commission_data = {}
@@ -136,10 +147,36 @@ class SaleOrder(models.Model):
                     commission_precentage = exception.below_margin_commission
                 elif exception.based_on_2 == 'Commission Exception':
                     commission_precentage = exception.commission_precentage
-                elif exception.based_on_2 == 'Fix Price' and line.price_unit >= exception.price:
-                    commission_precentage = exception.price_percentage
-                elif exception.based_on_2 == 'Fix Price' and line.price_unit < exception.price:
-                    pass
+                # elif exception.based_on_2 == 'Fix Price' and line.price_unit >= exception.price:
+                #     commission_precentage = exception.price_percentage
+                # elif exception.based_on_2 == 'Fix Price' and line.price_unit < exception.price:
+                #     pass
+                elif exception.based_on == "Product Categories" and exception.based_on_2 == 'Fix Price':
+                    categ_sales = self.env['sale.order.line'].search(
+                        [('product_id.categ_id.complete_name', 'ilike',
+                          "%" + line.categ_id.complete_name.replace(" ", "").split('/')[0] + "%"),
+                         ('order_id.user_id', '=', order.user_id.id),
+                         ('state', '!=', 'cancel')])
+                    categ_sales_total = sum(categ_sales.mapped('price_total'))
+                    amount = categ_sales_total
+                    print("categ_total : ", categ_sales_total)
+                    if categ_sales_total >= exception.price:
+                        commission_precentage = exception.price_percentage
+                    elif categ_sales_total < exception.price:
+                        pass
+                elif exception.based_on == "Product Sub-Categories" and exception.based_on_2 == 'Fix Price':
+                    sales = self.env['sale.order.line'].search([
+                        ('product_id.categ_id', '=', line.categ_id.id),
+                        ('order_id.user_id', '=', order.user_id.id),
+                        ('state', '!=', 'cancel')
+                    ])
+                    sub_categ_total = sum(sales.mapped('price_total'))
+                    amount = sub_categ_total
+                    print("sub_categ_total : ", sub_categ_total)
+                    if sub_categ_total >= exception.price:
+                        commission_precentage = exception.price_percentage
+                    elif sub_categ_total < exception.price:
+                        pass
 
                 commission_amount = amount * (commission_precentage / 100)
 
@@ -292,28 +329,6 @@ class SaleOrder(models.Model):
 
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
-    # ######################Edited By Vishnu#######################################################
-    # categ_id = fields.Many2one('product.category', string="To Store the Category ID", store=True)
-    #
-    # def get_mix_commission(self, commission_brw, order):
-    #     '''This method calculates commission for Product/Category/Margin Based.
-    #        @return : List of ids for commission records created.'''
-    #     exception_obj = self.env['sale.commission.exception']
-    #     invoice_commission_obj = self.env['invoice.sale.commission']
-    #     invoice_commission_ids = []
-    #     for line in order.order_line:
-    #
-    #         exception_ids = self.get_exceptions(line, commission_brw)
-    #
-    #         for exception in exception_ids:
-    #             self.categ_id = False
-    #             if exception.based_on == 'Product Categories':
-    #                 self.categ_id = exception.categ_id.id
-    #
-    #
-    #
-    # ######################Edited By Vishnu#######################################################
-
     def _prepare_invoice_line(self, **optional_values):
         res = super(SaleOrderLine, self)._prepare_invoice_line(**optional_values)
         res.update({'sol_id': self.id})
