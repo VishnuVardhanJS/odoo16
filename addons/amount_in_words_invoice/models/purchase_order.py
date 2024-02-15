@@ -41,4 +41,4 @@ class PurchaseOrder(models.Model):
         """Compute the amount to words in Purchase Order"""
         for rec in self:
             rec.number_to_words = rec.currency_id.amount_to_text(
-                rec.amount_total)
+                rec.amount_total).replace(',', '')

@@ -40,7 +40,6 @@ class AccountMove(models.Model):
     einv_sa_confirmation_datetime = fields.Datetime(string='Confirmation Date', readonly=True, copy=False)
 
     einv_sa_confirmed = fields.Boolean(compute='_compute_einv_sa_confirmation_datetime', store=True)
-
     def _compute_einv_sa_confirmation_datetime(self):
         for move in self:
             move.einv_sa_confirmed = False

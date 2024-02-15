@@ -110,6 +110,7 @@ class SaleOrder(models.Model):
 
             invoice_commission_data = {}
             exception_ids = []
+
             if not line.product_id: continue
             margin = ((line.price_subtotal / line.product_uom_qty) - line.product_id.standard_price)
             # ================================================================================
@@ -128,7 +129,6 @@ class SaleOrder(models.Model):
                 actual_margin_percentage = (margin * 100) / cost_line
             # ================================================================================
             exception_ids = self.get_exceptions(line, commission_brw)
-
             for exception in exception_ids:
                 product_id = False
                 categ_id = False
@@ -139,7 +139,6 @@ class SaleOrder(models.Model):
                     amount = line.price_subtotal
                 else:
                     amount = margin * line.product_uom_qty
-
                 margin_percentage = exception.margin_percentage
                 if exception.based_on_2 == 'Margin' and actual_margin_percentage > margin_percentage:
                     commission_precentage = exception.above_margin_commission
@@ -159,9 +158,10 @@ class SaleOrder(models.Model):
                          ('state', '!=', 'cancel')])
                     categ_sales_total = sum(categ_sales.mapped('price_total'))
                     amount = categ_sales_total
-                    print("categ_total : ", categ_sales_total)
+                    # print("categ_total : ", categ_sales_total)
                     if categ_sales_total >= exception.price:
                         commission_precentage = exception.price_percentage
+                        # print("commission_precentage : ", commission_precentage)
                     elif categ_sales_total < exception.price:
                         pass
                 elif exception.based_on == "Product Sub-Categories" and exception.based_on_2 == 'Fix Price':
@@ -172,7 +172,7 @@ class SaleOrder(models.Model):
                     ])
                     sub_categ_total = sum(sales.mapped('price_total'))
                     amount = sub_categ_total
-                    print("sub_categ_total : ", sub_categ_total)
+                    # print("sub_categ_total : ", sub_categ_total)
                     if sub_categ_total >= exception.price:
                         commission_precentage = exception.price_percentage
                     elif sub_categ_total < exception.price:
@@ -210,6 +210,7 @@ class SaleOrder(models.Model):
                                            'order_id': order.id,
                                            'order_line_id': line.id,
                                            'date': datetime.datetime.today()}
+                # print("commission_amount : ", commission_amount)
                 if invoice_commission_data and commission_amount > 0:
                     invoice_commission_ids.append(invoice_commission_obj.create(invoice_commission_data))
         return invoice_commission_ids

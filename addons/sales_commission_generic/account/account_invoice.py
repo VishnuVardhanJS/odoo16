@@ -58,8 +58,7 @@ class InvoiceSaleCommission(models.Model):
 		('discount', 'Discount Based'),
 		], 'Commission Type', copy=False, help="Select the type of commission you want to apply.")
 	user_id = fields.Many2one('res.users', string='Sales Person',
-								 help="sales person associated with this type of commission",
-								 required=True)
+								 help="sales person associated with this type of commission")
 	commission_amount = fields.Float(string="Commission Amount")
 	invoice_id = fields.Many2one('account.move', string='Invoice Reference',
 								 help="Affected Invoice")
@@ -71,6 +70,7 @@ class InvoiceSaleCommission(models.Model):
 								 help="Affected Sale Order line")
 	commission_id = fields.Many2one('sale.commission', string='Sale Commission',
 								 help="Related Commission",)
+	invoice_delay = fields.Integer(string="Invoice Delay", default=0)
 	product_id = fields.Many2one('product.product', string='Product',
 								 help="product",)
 	partner_id = fields.Many2one('res.partner', string='Partner')

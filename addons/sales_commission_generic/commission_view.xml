@@ -89,8 +89,14 @@
 												   'required': [('based_on','==', 'Product Categories')]}"/>
                     <field name="sub_categ_id" attrs="{'invisible': [('based_on','!=', 'Product Sub-Categories')],
 													  'required': [('based_on','==', 'Product Sub-Categories')]}"/>
-                    <field name="commission_precentage" required='1'/>
-
+                    <field name="target_start_date" widget="daterange"
+                           options="{'related_end_date': 'target_end_date'}"/>
+                    <field name="target_end_date" widget="daterange"
+                           options="{'related_start_date': 'target_start_date'}"/>
+                    <field name="invoice_delay"/>
+                    <field name="commission_precentage"/>
+                    <field name="target_percentage"/>
+                    <field name="payout_status" invisible="1"/>
                     <!--					commented to remove these field from the sales commission module-->
                     <!--				   <field name="margin_percentage"/>-->
                     <!--				   <field name="above_margin_commission"/>-->
@@ -98,9 +104,12 @@
                     <field name="price"/>
 
                     <field name="achieved_amount"/>
-                    <field name="percentage" widget="progressbar"/>
+                    <field name="achieved_percentage" widget="progressbar"/>
 
                     <field name="price_percentage"/>
+                    <button name="Payout_Button" string="Payout" type="object"
+                            confirm="Are you sure you want to payout?"
+                            attrs="{'invisible': [('payout_status','=', True)]}"/>
                 </tree>
             </field>
         </record>
@@ -125,8 +134,15 @@
                                        attrs="{'invisible': [('based_on','!=', 'Product Sub-Categories')],'required': [('based_on','==', 'Product Sub-Categories')]}"/>
                             </group>
                             <group>
-                                <field name="commission_precentage"
-                                       attrs="{'invisible': [('based_on_2','!=', 'Commission Exception')],'required': [('based_on_2','==', 'Commission Exception')]}"/>
+                                <!--                                <field name="commission_precentage"-->
+                                <!--                                       attrs="{'invisible': [('based_on_2','!=', 'Commission Exception')],'required': [('based_on_2','==', 'Commission Exception')]}"/>-->
+                                <field name="target_start_date" widget="daterange"
+                                       options="{'related_end_date': 'target_end_date'}"/>
+                                <field name="target_end_date" widget="daterange"
+                                       options="{'related_start_date': 'target_start_date'}"/>
+                                <field name="invoice_delay"/>
+                                <field name="commission_precentage"/>
+                                <field name="target_percentage"/>
                                 <field name="margin_percentage"
                                        attrs="{'invisible': [('based_on_2','!=', 'Margin')],'required': [('based_on_2','==', 'Margin')]}"
                                        placeholder="Percentage" style="width: 60%%"/>

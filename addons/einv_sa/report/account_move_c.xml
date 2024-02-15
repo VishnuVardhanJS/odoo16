@@ -2,20 +2,19 @@
 <odoo>
     <data>
         <!-- report action  -->
-        <record id="action_tax_invoice_report" model="ir.actions.report">
-            <field name="name">Tax Invoice</field>
+        <record id="action_tax_invoice_report_copy" model="ir.actions.report">
+            <field name="name">Tax Invoice Copy</field>
             <field name="model">account.move</field>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">einv_sa.account_move_report</field>
-            <field name="report_file">einv_sa.account_move_report</field>
+            <field name="report_name">einv_sa.account_move_report_copy</field>
+            <field name="report_file">einv_sa.account_move_report_copy</field>
             <field name="print_report_name">'Invoice - %s' % (object.name).replace('/', '')</field>
             <field name="binding_model_id" ref="model_account_move"/>
             <field name="binding_type">report</field>
         </record>
 
 
-        <template id="einv_sa.inv_header">
-
+        <template id="einv_sa.inv_header_copy">
             <div>
                 <div>
 
@@ -65,12 +64,12 @@
             <div class="oe_structure"/>
         </template>
 
-        <template id="einv_sa.partner_info">
+        <template id="einv_sa.partner_info_copy">
             <!--            <div class="row p-1 mt-1  bg-light">-->
             <!--                <div class="col-6"><Strong>Buyer</Strong></div>-->
 
             <!--            </div>-->
-            <div style="margin-left: -40px">
+            <div>
                 <!--                <div style="width: 100%;">-->
 
 
@@ -80,7 +79,7 @@
                 <!--                </div>-->
                 <!--                <div style="width: 100%;">-->
                 <!--                    <div style="width: 50%; float: left;">-->
-                <span style="width: 100px">Bill To</span>
+                <span style="width: 100px">Bill Hello</span>
                 <br/>
                 <!--                    </div>-->
                 <!--                    <div style="width: 50%; float: left;">-->
@@ -109,59 +108,8 @@
             <div class="oe_structure"/>
         </template>
 
-        <!--        <template id="einv_sa.partner_info">-->
-        <!--            &lt;!&ndash;            <div class="row p-1 mt-1  bg-light">&ndash;&gt;-->
-        <!--            &lt;!&ndash;                <div class="col-6"><Strong>Buyer</Strong></div>&ndash;&gt;-->
 
-        <!--            &lt;!&ndash;            </div>&ndash;&gt;-->
-        <!--            <div>-->
-        <!--                <div style="width: 100%;">-->
-        <!--                    <div style="width: 50%; float: left;">-->
-
-        <!--                        <span>Name</span>-->
-        <!--                    </div>-->
-        <!--                    <div style="width: 50%; float: left;">-->
-        <!--                        <span>:</span>-->
-        <!--                        <t t-out="doc.partner_id.name"/>-->
-        <!--                    </div>-->
-        <!--                    &lt;!&ndash;                    <span t-field="doc.partner_id.name"></span>&ndash;&gt;-->
-        <!--                </div>-->
-        <!--                <div style="width: 100%;">-->
-        <!--                    <div style="width: 50%; float: left;">-->
-        <!--                        <span style="width: 100px">Address</span>-->
-        <!--                    </div>-->
-        <!--                    <div style="width: 50%; float: left;">-->
-        <!--                        <span>:</span>-->
-        <!--                        <span t-field="doc.partner_id.building_no"></span>-->
-        <!--                        <span t-field="doc.partner_id.street"></span>-->
-
-        <!--                        <span t-field="doc.partner_id.district"></span>-->
-        <!--                        <span>,</span>-->
-        <!--                        <span t-field="doc.partner_id.city"></span>-->
-        <!--                        <span>,</span>-->
-        <!--                        <span t-field="doc.partner_id.country_id.name"/>-->
-        <!--                        <span>,</span>-->
-        <!--                        <span t-field="doc.partner_id.zip"></span>-->
-        <!--                    </div>-->
-        <!--                </div>-->
-        <!--                <div style="width: 100%;">-->
-        <!--                    <div style="width: 50%; float: left;">-->
-        <!--                        <span style="width: 100px">Vat Number</span>-->
-        <!--                    </div>-->
-        <!--                    <div style="width: 50%; float: left;">-->
-        <!--                        <span>:</span>-->
-        <!--                        <span t-field="doc.partner_id.vat"></span>-->
-        <!--                    </div>-->
-
-        <!--                </div>-->
-
-        <!--                <div class="oe_structure"/>-->
-        <!--            </div>-->
-        <!--            <div class="oe_structure"/>-->
-        <!--        </template>-->
-
-
-        <template id="einv_sa.inv_lines">
+        <template id="einv_sa.inv_lines_copy">
             <div style="width: 100%; margin-bottom: 30px; font-size:1.2rem;">
                 <div style="width: 10%; float: left;">
                     <Strong>PROJECT</Strong>
@@ -239,7 +187,7 @@
         </template>
 
 
-        <template id="einv_sa.inv_total">
+        <template id="einv_sa.inv_total_copy">
             <div style="page-break-inside: avoid;">
                 <div class="row p-1 my-2 border-bottom bg-light">
                     <div class="col-12">
@@ -299,7 +247,7 @@
         </template>
 
         <!-- main document template -->
-        <template id="einv_sa.account_move_report_document">
+        <template id="einv_sa.account_move_report_document_copy">
             <t t-debug=""></t>
             <t t-call="web.external_layout">
                 <t t-set="doc" t-value="doc.with_context({'lang': lang})"/>
@@ -317,20 +265,20 @@
 
                         <!-- partner fields-->
                         <div style="width: 50%; float: left;">
-                            <t t-call="einv_sa.partner_info"/>
+                            <t t-call="einv_sa.partner_info_copy"/>
                         </div>
                         <div style="width: 50%; float: left;">
                             <!-- Invoice fields-->
-                            <t t-call="einv_sa.inv_header"/>
+                            <t t-call="einv_sa.inv_header_copy"/>
                         </div>
                     </div>
 
                     <div style="position: absolute; top: 300px; width: 98%;">
                         <!-- Invoice fields-->
-                        <t t-call="einv_sa.inv_lines" t-lang="ar"/>
+                        <t t-call="einv_sa.inv_lines_copy" t-lang="ar"/>
 
                         <!-- Invoice total-->
-                        <t class='total_table' t-call="einv_sa.inv_total"/>
+                        <t class='total_table' t-call="einv_sa.inv_total_copy"/>
                     </div>
 
                     <div style=" width: 100%; position: absolute; top: 700px;">
@@ -426,11 +374,11 @@
         </template>
 
         <!-- main template -->
-        <template id="einv_sa.account_move_report">
+        <template id="einv_sa.account_move_report_copy">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
                     <t t-set="lang" t-value="doc.create_uid.lang"/>
-                    <t t-call="einv_sa.account_move_report_document"/>
+                    <t t-call="einv_sa.account_move_report_document_copy"/>
                 </t>
             </t>
         </template>
