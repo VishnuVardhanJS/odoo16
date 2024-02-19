@@ -46,6 +46,7 @@
         "report/account_move.xml",
         "view/account_move_views.xml",
         "report/account_move_c.xml",
+        "report/account_move_resource.xml",
     ],
     "installable": True,
     "auto_install": False,

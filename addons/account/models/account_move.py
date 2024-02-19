@@ -554,6 +554,14 @@ class AccountMove(models.Model):
     show_payment_term_details = fields.Boolean(compute="_compute_show_payment_term_details")
     show_discount_details = fields.Boolean(compute="_compute_show_payment_term_details")
 
+
+    ####################################Added By Vishnu##################################################
+    po_number = fields.Char(string="PO Number")
+    project_name = fields.Char(string="PO Name")
+    total_discount = fields.Monetary(string="Total Discount", default=0)
+    amount_after_discount = fields.Monetary(string="Total Amount After Discount", compute="_compute_amount")
+    ####################################Added By Vishnu##################################################
+
     def _auto_init(self):
         super()._auto_init()
         self.env.cr.execute("""
@@ -832,7 +840,7 @@ class AccountMove(models.Model):
         'line_ids.amount_residual_currency',
         'line_ids.payment_id.state',
         'line_ids.full_reconcile_id',
-        'state')
+        'state', 'total_discount')
     def _compute_amount(self):
         for move in self:
             total_untaxed, total_untaxed_currency = 0.0, 0.0
@@ -875,6 +883,7 @@ class AccountMove(models.Model):
             move.amount_total_signed = abs(total) if move.move_type == 'entry' else -total
             move.amount_residual_signed = total_residual
             move.amount_total_in_currency_signed = abs(move.amount_total) if move.move_type == 'entry' else -(sign * move.amount_total)
+            move.amount_after_discount = move.amount_total - move.total_discount
 
     @api.depends('amount_residual', 'move_type', 'state', 'company_id')
     def _compute_payment_state(self):

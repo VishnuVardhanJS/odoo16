@@ -2,9 +2,23 @@
 <odoo>
     <data>
         <!-- report action  -->
+
+<!--        <record model="ir.actions.server" id="custom_action_test">-->
+<!--            <field name="name">test Field</field>-->
+<!--            <field name="model_id" ref="account.model_account_move"/>-->
+<!--            <field name="binding_model_id" ref="account.model_account_move"/>-->
+<!--            <field name="code">-->
+<!--                if records:-->
+<!--                action = records.action_switch_invoice_into_refund_credit_note()-->
+<!--            </field>-->
+<!--            <field name="binding_view_types">form</field>-->
+<!--        </record>-->
+
+
         <record id="action_tax_invoice_report" model="ir.actions.report">
             <field name="name">Tax Invoice</field>
             <field name="model">account.move</field>
+<!--            <field name="report_template" ref="custom_invoice_template"/>-->
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">einv_sa.account_move_report</field>
             <field name="report_file">einv_sa.account_move_report</field>
@@ -13,6 +27,12 @@
             <field name="binding_type">report</field>
         </record>
 
+<!--        <template id="einv_external_layout_boxed"-->
+<!--                  inherit_id="web.external_layout_boxed">-->
+<!--            <xpath expr="//div[@class='logo']/img" position="replace">-->
+<!--                <img src="https://cdnlogo.com/logos/d/42/dkny-2.svg" alt="Logo"/>-->
+<!--            </xpath>-->
+<!--        </template>-->
 
         <template id="einv_sa.inv_header">
 
@@ -46,6 +66,16 @@
                         <div style="width: 60%; float: left;">
                             <span>:</span>
                             <span t-field="doc.name"></span>
+                        </div>
+
+                    </div>
+                    <div style="width: 100%;">
+                        <div style="width: 40%; float: left;">
+                            <Strong>PO Number</Strong>
+                        </div>
+                        <div style="width: 60%; float: left;">
+                            <span>:</span>
+                            <span t-field="doc.po_number"></span>
                         </div>
 
                     </div>
@@ -168,7 +198,7 @@
                 </div>
                 <div style="width: 90%; float: left;">
                     <span>:</span>
-                    <span t-field="doc.name"></span>
+                    <span t-field="doc.project_name"></span>
                 </div>
 
             </div>
@@ -187,15 +217,15 @@
                         <td>
                             <div class="mw-100" style="color: white;">Discount</div>
                         </td>
-<!--                        <td>-->
-<!--                            <div class="mw-100" style="color: white;">Taxes</div>-->
-<!--                        </td>-->
-<!--                        <td>-->
-<!--                            <div class="mw-100" style="color: white;">Amount tax</div>-->
-<!--                        </td>-->
-<!--                        <td>-->
-<!--                            <div class="mw-100" style="color: white;">Taxable Amount</div>-->
-<!--                        </td>-->
+                        <!--                        <td>-->
+                        <!--                            <div class="mw-100" style="color: white;">Taxes</div>-->
+                        <!--                        </td>-->
+                        <!--                        <td>-->
+                        <!--                            <div class="mw-100" style="color: white;">Amount tax</div>-->
+                        <!--                        </td>-->
+                        <!--                        <td>-->
+                        <!--                            <div class="mw-100" style="color: white;">Taxable Amount</div>-->
+                        <!--                        </td>-->
                         <td>
                             <div class="mw-100" style="color: white;">Price Total</div>
                         </td>
@@ -218,16 +248,16 @@
                             <span t-field="line.einv_amount_discount"/>
                         </td>
                         <!--                            <td><span t-field="line.tax_ids[0].name"/></td>-->
-<!--                        <td t-attf-class="{{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">-->
-<!--                            <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_ids))"-->
-<!--                                  id="line_tax_ids"/>-->
-<!--                        </td>-->
-<!--                        <td>-->
-<!--                            <span t-field="line.einv_amount_tax"/>-->
-<!--                        </td>-->
-<!--                        <td>-->
-<!--                            <span t-field="line.price_subtotal"/>-->
-<!--                        </td>-->
+                        <!--                        <td t-attf-class="{{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">-->
+                        <!--                            <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_ids))"-->
+                        <!--                                  id="line_tax_ids"/>-->
+                        <!--                        </td>-->
+                        <!--                        <td>-->
+                        <!--                            <span t-field="line.einv_amount_tax"/>-->
+                        <!--                        </td>-->
+                        <!--                        <td>-->
+                        <!--                            <span t-field="line.price_subtotal"/>-->
+                        <!--                        </td>-->
                         <td>
                             <span t-field="line.price_total"/>
                         </td>
@@ -270,22 +300,22 @@
                                         t-field="doc.einv_amount_discount_total"></span>
                             </div>
                         </div>
-<!--                        <div class="row border border-top-0">-->
-<!--                            <div class="col-4">Total Taxable Amount (Excluding VAT)</div>-->
-<!--                            <div class="col-2 text-center">-->
-<!--                                <span t-field="doc.amount_untaxed"></span>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="row border border-top-0">-->
-<!--                            <div class="col-4">Total VAT</div>-->
-<!--                            <div class="col-2 text-center">-->
-<!--                                <span t-field="doc.amount_tax_signed"></span>-->
-<!--                            </div>-->
-<!--                        </div>-->
+                        <!--                        <div class="row border border-top-0">-->
+                        <!--                            <div class="col-4">Total Taxable Amount (Excluding VAT)</div>-->
+                        <!--                            <div class="col-2 text-center">-->
+                        <!--                                <span t-field="doc.amount_untaxed"></span>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
+                        <!--                        <div class="row border border-top-0">-->
+                        <!--                            <div class="col-4">Total VAT</div>-->
+                        <!--                            <div class="col-2 text-center">-->
+                        <!--                                <span t-field="doc.amount_tax_signed"></span>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
                         <div class="row border border-top-0">
                             <div class="col-4">Total Amount Due</div>
                             <div class="col-2 text-center">
-                                <span t-field="doc.amount_total"></span>
+                                <span t-field="doc.amount_after_discount"></span>
                             </div>
                         </div>
                     </div>
@@ -377,47 +407,6 @@
                                 </tr>
                             </tbody>
                         </table>
-
-<!--                        <table style="width: 90%; height: 50%; border: 1px solid black; border-collapse: collapse;">-->
-<!--                            <tr>-->
-<!--                                <th style="text-align: center;">Banking Coordinates</th>-->
-<!--                            </tr>-->
-<!--                            <tr>-->
-<!--                                <td style="padding: 5px;">Bank Name</td>-->
-<!--                                <td style="padding: 5px;">DOHA BANK</td>-->
-<!--                                <td style="padding: 5px;">DOHA BANK</td>-->
-<!--                            </tr>-->
-<!--                            <tr>-->
-<!--                                <td style="padding: 5px;">Account Name</td>-->
-<!--                                <td style="padding: 5px;">VISMAYA INFOTECH SOLUTIONS W L L</td>-->
-<!--                                <td style="padding: 5px;">VISMAYA INFOTECH SOLUTIONS W L L</td>-->
-<!--                            </tr>-->
-<!--                            <tr>-->
-<!--                                <td style="padding: 5px;">Account Number</td>-->
-<!--                                <td style="padding: 5px;">0228/0910388/001/0010/000 (QAR)</td>-->
-<!--                                <td style="padding: 5px;">228-910388-2-10-0 (USD)</td>-->
-<!--                            </tr>-->
-<!--                            <tr>-->
-<!--                                <td style="padding: 5px;">IBAN</td>-->
-<!--                                <td style="padding: 5px;">QA30 DOHB 0228 0910 3880 0100 1000 0</td>-->
-<!--                                <td style="padding: 5px;">QA15DOHB022809103880020010000</td>-->
-<!--                            </tr>-->
-<!--                            <tr>-->
-<!--                                <td style="padding: 5px;">Branch</td>-->
-<!--                                <td style="padding: 5px;">ABU HAMOUR</td>-->
-<!--                                <td style="padding: 5px;">ABU HAMOUR</td>-->
-<!--                            </tr>-->
-<!--                            <tr>-->
-<!--                                <td style="padding: 5px;">P.O BOX</td>-->
-<!--                                <td style="padding: 5px;">3818 DOHA</td>-->
-<!--                                <td style="padding: 5px;">3818 DOHA</td>-->
-<!--                            </tr>-->
-<!--                            <tr>-->
-<!--                                <td style="padding: 5px;">SWIFT</td>-->
-<!--                                <td style="padding: 5px;">DOHB QA QA</td>-->
-<!--                                <td style="padding: 5px;">DOHB QA QA</td>-->
-<!--                            </tr>-->
-<!--                        </table>-->
                     </div>
                 </div>
 

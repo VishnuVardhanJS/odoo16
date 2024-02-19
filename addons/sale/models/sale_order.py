@@ -287,6 +287,11 @@ class SaleOrder(models.Model):
         string="Has Pricelist Changed", store=False)  # True if the pricelist was changed
 
 
+    ###############################Added By Vishnu################################################
+    total_discount = fields.Monetary(string="Total Discount", default=0)
+    amount_after_discount = fields.Monetary(string="Total Amount After Discount", compute="_compute_amounts")
+    ###############################Added By Vishnu################################################
+
     def init(self):
         create_index(self._cr, 'sale_order_date_order_id_idx', 'sale_order', ["date_order desc", "id desc"])
 
@@ -448,6 +453,7 @@ class SaleOrder(models.Model):
             order.amount_untaxed = amount_untaxed
             order.amount_tax = amount_tax
             order.amount_total = order.amount_untaxed + order.amount_tax
+            order.amount_after_discount = order.amount_total - order.total_discount
 
     @api.depends('order_line.invoice_lines')
     def _get_invoiced(self):
@@ -1137,6 +1143,10 @@ class SaleOrder(models.Model):
                 invoice_item_sequence += 1
 
             invoice_vals['invoice_line_ids'] += invoice_line_vals
+
+            ####################Added By Vishnu#######################################
+            invoice_vals['total_discount'] = order.total_discount
+            ####################Added By Vishnu#######################################
             invoice_vals_list.append(invoice_vals)
 
         if not invoice_vals_list and self._context.get('raise_if_nothing_to_invoice', True):

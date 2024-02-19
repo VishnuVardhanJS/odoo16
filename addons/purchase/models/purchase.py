@@ -151,6 +151,11 @@ class PurchaseOrder(models.Model):
     receipt_reminder_email = fields.Boolean('Receipt Reminder Email', compute='_compute_receipt_reminder_email')
     reminder_date_before_receipt = fields.Integer('Days Before Receipt', compute='_compute_receipt_reminder_email')
 
+    #######################Added By Vishnu#############################
+    po_number = fields.Char(string="PO Number")
+    po_term = fields.Char(string="Payment Terms")
+    #######################Added By Vishnu#############################
+
     @api.constrains('company_id', 'order_line')
     def _check_order_line_company_id(self):
         for order in self:

@@ -63,13 +63,18 @@ class employee_kra(models.Model):
     state = fields.Selection([('draft', 'Draft'), ('submit', 'Submited To Supervisor'), ('cancel', 'Cancelled'), ('done', 'Done'), ], "State", tracking=True, default='draft')
     
     def unlink(self):
-        for rec in self:
-            if rec.state not in ('draft', 'cancel'):
-                raise UserError(_('You cannot delete KRA which is not draft or cancelled.'))
+        #################Changed By Vishnu#######################################
+        # for rec in self:
+        #     if rec.state not in ('draft', 'cancel'):
+        #         raise UserError(_('You cannot delete KRA which is not draft or cancelled.'))
+        #################Changed By Vishnu#######################################
         return super(employee_kra, self).unlink()
     
     def action_submit(self):
         self.state = 'submit'
+
+    def action_draft(self):
+        self.state = 'draft'
 
     def action_cancel(self):
         self.state = 'cancel'
@@ -268,13 +273,18 @@ class value_rating(models.Model):
     state = fields.Selection([('draft', 'Draft'), ('cancel', 'Cancelled'), ('done', 'Done'), ], "State" , tracking=True,default='draft')
 
     def unlink(self):
-        for rec in self:
-            if rec.state not in ('draft', 'cancel'):
-                raise UserError(_('You cannot delete Record which is not draft or cancelled.'))
+        #################Changed By Vishnu#######################################
+        # for rec in self:
+        #     if rec.state not in ('draft', 'cancel'):
+        #         raise UserError(_('You cannot delete Record which is not draft or cancelled.'))
+        #################Changed By Vishnu#######################################
         return super(value_rating, self).unlink()
 
     def action_submit(self):
         self.state = 'submit'
+
+    def action_draft(self):
+        self.state = 'draft'
     
     def action_cancel(self):
         self.state = 'cancel'

@@ -4,7 +4,7 @@
         <t t-call="web.external_layout">
 
             <t t-set="address">
-                <div style="position: absolute; left: 10px; top:150px; color: #001f5e;">
+                <div style="position: absolute; left: 10px; top:140px; color: #001f5e;">
                     <div>
                         <strong>Billed From</strong>
                     </div>
@@ -47,8 +47,13 @@
                             <span t-field="o.date_order" t-options='{"format": "dd-MM-yyyy"}'></span>
                         </div>
                         <div>
-<!--                            <Strong>PO No</Strong>-->
-<!--                            <span>:</span>-->
+                            <Strong>PO No</Strong>
+                            <span>:</span>
+                            <span t-field="o.po_number"></span>
+                        </div>
+                        <div>
+                            <Strong>Ref No</Strong>
+                            <span>:</span>
                             <span t-field="o.partner_ref"></span>
                         </div>
                     </div>
@@ -204,11 +209,12 @@
                                         <span t-field="line.name"/>
                                     </td>
                                     <td class="text-center">
-                                        <!--                                    duration term-->
-                                        <span t-field="o.date_approve" t-options='{"format": "dd-MM-yyyy"}'/>
-                                        <span>to</span>
-                                        <span t-field="o.date_order" t-options='{"format": "dd-MM-yyyy"}'/>
-                                        <!--                                    duration term-->
+<!--                                        &lt;!&ndash;                                    duration term&ndash;&gt;-->
+<!--                                        <span t-field="o.date_approve" t-options='{"format": "dd-MM-yyyy"}'/>-->
+<!--                                        <span>to</span>-->
+<!--                                        <span t-field="o.date_order" t-options='{"format": "dd-MM-yyyy"}'/>-->
+<!--                                        &lt;!&ndash;                                    duration term&ndash;&gt;-->
+                                        <span t-field="o.po_term"/>
                                     </td>
                                     <td class="text-end">
                                         <span t-field="line.product_qty"/>

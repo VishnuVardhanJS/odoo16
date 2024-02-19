@@ -40,6 +40,7 @@ class AccountMove(models.Model):
     einv_sa_confirmation_datetime = fields.Datetime(string='Confirmation Date', readonly=True, copy=False)
 
     einv_sa_confirmed = fields.Boolean(compute='_compute_einv_sa_confirmation_datetime', store=True)
+
     def _compute_einv_sa_confirmation_datetime(self):
         for move in self:
             move.einv_sa_confirmed = False
@@ -99,11 +100,12 @@ class AccountMove(models.Model):
 
     # endregion
 
-    @api.depends('invoice_line_ids', 'amount_total')
+    @api.depends('invoice_line_ids', 'amount_total', 'total_discount')
     def _compute_total(self):
         for r in self:
-            r.einv_amount_sale_total = r.amount_untaxed + sum(line.einv_amount_discount for line in r.invoice_line_ids)
-            r.einv_amount_discount_total = sum(line.einv_amount_discount for line in r.invoice_line_ids)
+            r.einv_amount_sale_total = r.amount_untaxed + sum(
+                line.einv_amount_discount for line in r.invoice_line_ids)
+            r.einv_amount_discount_total = sum(line.einv_amount_discount for line in r.invoice_line_ids) + r.total_discount
             r.einv_amount_tax_total = sum(line.einv_amount_tax for line in r.invoice_line_ids)
 
             # tags = seller_name, vat_no, inv_date, total, vat

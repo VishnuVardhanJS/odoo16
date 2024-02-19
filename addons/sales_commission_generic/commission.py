@@ -217,7 +217,7 @@ class SaleCommissionException(models.Model):
     non_invoiced_amount = fields.Float(string="Non Invoiced Amount", default=0)
     last_order = fields.Char(string="last SO ID")
     invoiced_amount = fields.Float(string="Invoiced Amount", default=0)
-    cost_price = fields.Float(string="Licensed Cost Price", default=0)
+    # cost_price = fields.Float(string="Licensed Cost Price", default=0)
 
     ##########################Added By Vishnu##############################
 
@@ -244,10 +244,10 @@ class SaleCommissionException(models.Model):
                         ('write_date', '<=', record.target_end_date)
                     ])
 
-                if record.sub_categ_id.complete_name.replace(" ", "").split('/')[0] == "Licensed":
-                    sub_categ_total_sales = sum(sales.mapped('purchase_price'))
-                else:
-                    sub_categ_total_sales = sum(sales.mapped('price_total'))
+                # if record.sub_categ_id.complete_name.replace(" ", "").split('/')[0] == "Licensed":
+                #     sub_categ_total_sales = sum(sales.mapped('purchase_price'))
+                # else:
+                sub_categ_total_sales = sum(sales.mapped('price_total'))
                 record.achieved_amount = sub_categ_total_sales
 
 
@@ -309,10 +309,10 @@ class SaleCommissionException(models.Model):
                          ('write_date', '>=', record.target_start_date),
                          ('write_date', '<=', record.target_end_date)])
 
-                if record.categ_id.complete_name.replace(" ", "").split('/')[0] == "Licensed":
-                    categ_sales_total = sum(categ_sales.mapped('purchase_price'))
-                else:
-                    categ_sales_total = sum(categ_sales.mapped('price_total'))
+                # if record.categ_id.complete_name.replace(" ", "").split('/')[0] == "Licensed":
+                #     categ_sales_total = sum(categ_sales.mapped('purchase_price'))
+                # else:
+                categ_sales_total = sum(categ_sales.mapped('price_total'))
                 record.achieved_amount = categ_sales_total
 
                 '''stored the previously visited sales order number in an dictionary
