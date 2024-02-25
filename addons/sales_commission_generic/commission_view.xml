@@ -260,5 +260,45 @@
             <field name="groups_id" eval="[(4, ref('sales_commission_generic.group_sales_commission_manager'))]"/>
         </record>
 
+
+<!--        &lt;!&ndash;                Added By Vishnu&ndash;&gt;-->
+
+<!--        <record id="sales_incentive_dashboard_tree" model="ir.ui.view">-->
+<!--            <field name="name">sales.incentive.dashboard.tree</field>-->
+<!--            <field name="model">sale.commission.dashboard</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <tree string="Sales Incentive">-->
+<!--                    <field name="sale_user_id" widget="many2one_avatar_user"/>-->
+<!--                    <field name="target_price"/>-->
+<!--                    &lt;!&ndash; Add more fields as needed &ndash;&gt;-->
+<!--                </tree>-->
+<!--            </field>-->
+<!--        </record>-->
+<!--&lt;!&ndash;        <record id="sales_incentive_dashboard_form" model="ir.ui.view">&ndash;&gt;-->
+<!--&lt;!&ndash;            <field name="name">sales.incentive.dashboard.form</field>&ndash;&gt;-->
+<!--&lt;!&ndash;            <field name="model">sale.commission.dashboard</field>&ndash;&gt;-->
+<!--&lt;!&ndash;            <field name="arch" type="xml">&ndash;&gt;-->
+<!--&lt;!&ndash;                <tree string="Sales Incentive">&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                    <field name="sale_user_id" widget="many2one_avatar_user"/>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                    &lt;!&ndash; Add more fields as needed &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                </tree>&ndash;&gt;-->
+<!--&lt;!&ndash;            </field>&ndash;&gt;-->
+<!--&lt;!&ndash;        </record>&ndash;&gt;-->
+
+<!--        <record id="sales_incentive_dashboard" model="ir.actions.act_window">-->
+<!--            <field name="name">Sales Incentive Dashboard</field>-->
+<!--            <field name="res_model">sale.commission.dashboard</field>-->
+<!--            <field name="view_mode">tree</field>-->
+<!--            <field name="view_id" ref="sales_incentive_dashboard_tree"/>-->
+
+<!--        </record>-->
+
+
+<!--        <menuitem-->
+<!--                action="sales_incentive_dashboard"-->
+<!--                id="menu_action_commission_report_dashboard"-->
+<!--                parent="sale.menu_sale_report"/>-->
+<!--        &lt;!&ndash;                Added By Vishnu&ndash;&gt;-->
+
     </data>
 </odoo>

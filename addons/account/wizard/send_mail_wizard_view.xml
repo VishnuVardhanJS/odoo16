@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_my_wizard_form" model="ir.ui.view">
+            <field name="name">send.mail.wizard.form</field>
+            <field name="model">send.mail.wizard</field>
+            <field name="arch" type="xml">
+                <form string="My Wizard">
+                    <group>
+                        <field name="selection_field"/>
+                    </group>
+                    <footer>
+                        <button string="Confirm" type="object" name="confirm_selection" class="btn-primary"/>
+                        <button string="Cancel" type="object" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="send_custom_mail_wizard" model="ir.actions.act_window">
+            <field name="name">Send Mail</field>
+            <field name="res_model">send.mail.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_my_wizard_form"/>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

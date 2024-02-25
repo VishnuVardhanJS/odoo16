@@ -12,11 +12,6 @@ class SaleOrder(models.Model):
     commission_ids = fields.One2many('invoice.sale.commission', 'order_id', string='Sales Commissions',
                                      help="Sale Commission related to this order(based on sales person)")
 
-    ##########################Added By Vishnu##############################
-
-
-    ##########################Added By Vishnu##############################
-
     def get_exceptions(self, line, commission_brw):
         '''This method searches exception for any product line.
            @return : List of ids for all exception for particular product line.'''
@@ -101,10 +96,6 @@ class SaleOrder(models.Model):
         invoice_commission_obj = self.env['invoice.sale.commission']
         invoice_commission_ids = []
 
-        ##########################Added By Vishnu##############################
-
-
-        ##########################Added By Vishnu##############################
 
         for line in order.order_line:
 

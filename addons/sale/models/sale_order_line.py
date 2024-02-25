@@ -271,7 +271,7 @@ class SaleOrderLine(models.Model):
     # def _onchange_categ(self):
     #     return {'domain': {'product_id': [('categ_id', '=', self.categ_id.id)]}}
 
-    categ_id = fields.Many2one(related='product_id.product_tmpl_id.categ_id', string='Product Category', store=True)
+    #categ_id = fields.Many2one(related='product_id.product_tmpl_id.categ_id', string='Product Category', store=True)
 
     ##########################added by Vishnu#############################################################
 

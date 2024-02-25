@@ -393,7 +393,7 @@
                 <div class="row mb8">
                     <div class="col-6">
                         <div class="logo">
-                            <img id="company_logo" t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo"/>
+                            <img id="company_logo" width="300" t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo"/>
                         </div>
                     </div>
                     <div class="col-6 text-end mb4">

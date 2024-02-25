@@ -217,7 +217,6 @@ class SaleCommissionException(models.Model):
     non_invoiced_amount = fields.Float(string="Non Invoiced Amount", default=0)
     last_order = fields.Char(string="last SO ID")
     invoiced_amount = fields.Float(string="Invoiced Amount", default=0)
-    # cost_price = fields.Float(string="Licensed Cost Price", default=0)
 
     ##########################Added By Vishnu##############################
 
@@ -249,7 +248,6 @@ class SaleCommissionException(models.Model):
                 # else:
                 sub_categ_total_sales = sum(sales.mapped('price_total'))
                 record.achieved_amount = sub_categ_total_sales
-
 
                 temp_order_dict = json.loads(record.order_history)
                 for order_check in temp_order_dict["order_id"]:
@@ -349,7 +347,8 @@ class SaleCommissionException(models.Model):
                         temp_order_dict["order_id"].append(id_rec)
                         record.order_history = json.dumps(temp_order_dict)
                         if record.categ_id.complete_name.replace(" ", "").split('/')[0] == "Licensed":
-                            record.non_invoiced_amount = record.non_invoiced_amount + self.env["sale.order.line"].search(
+                            record.non_invoiced_amount = record.non_invoiced_amount + self.env[
+                                "sale.order.line"].search(
                                 [("id", "=", id_rec)]).purchase_price
                         else:
                             record.non_invoiced_amount = record.non_invoiced_amount + self.env[
@@ -358,7 +357,8 @@ class SaleCommissionException(models.Model):
                         record.last_order = self.env["sale.order.line"].search([("id", "=", id_rec)]).order_id.id
                         record.payout_status = False
 
-                record.payout_status = True
+                # Disables the payout button for the Product Category Option
+                record.payout_status = True  # Comment this line to enable payout based on Category if needed in Future
 
             else:
                 record.achieved_amount = 0
@@ -404,6 +404,7 @@ class SaleCommissionException(models.Model):
                             rec.based_on) + ' "' + tools.ustr(
                             rec.categ_id.complete_name.replace(" ", "").split('/')[0]) + '" @' + tools.ustr(
                             rec.commission_precentage) + '%'
+                        # sets the name and categ_id for the data sent to sales commissoin lines
                         invoice_commission_data['name'] = name
                         invoice_commission_data['categ_id'] = rec.categ_id.id
 
@@ -427,27 +428,29 @@ class SaleCommissionException(models.Model):
                         invoice_commission_data['name'] = name
                         invoice_commission_data['product_id'] = rec.product_id.id
 
+                    '''
+                    These Checks are to fix the edge case to calculate the commission amount while crossing
+                    100% target and to calculate with/without the over achiever percentage
+                    '''
                     if rec.invoiced_amount < rec.price and rec.invoiced_amount + rec.non_invoiced_amount > rec.price:
-                        print("passed if ")
                         over_achieved_amount = rec.non_invoiced_amount + rec.invoiced_amount - rec.price
                         above_price_commission = over_achieved_amount * (
                                 rec.price_percentage / 100)
                         commission_amount = ((rec.non_invoiced_amount - over_achieved_amount) * (
                                 rec.commission_precentage / 100)) + above_price_commission
                     elif rec.achieved_percentage > 100:
-                        print("passed elif")
                         # above_price_commission = rec.non_invoiced_amount * (rec.price_percentage / 100)
                         commission_amount = (rec.non_invoiced_amount * (
                                 rec.price_percentage / 100))
                     else:
-                        print("passed else")
                         commission_amount = rec.non_invoiced_amount * (rec.commission_precentage / 100)
 
                     invoice_commission_data['commission_amount'] = commission_amount
 
+                    # Creates an new record in the sales commission lines with the provided data
                     invoice_commission_obj.create(invoice_commission_data)
                     rec.invoiced_amount = rec.invoiced_amount + rec.non_invoiced_amount
-                    rec.non_invoiced_amount = 0
+                    rec.non_invoiced_amount = 0  # Resets the invoiced amount for the next payout
                     rec.payout_status = True
 
                 else:
@@ -500,3 +503,29 @@ class DiscountCommissionRules(models.Model):
                                     help="Related Commission", )
     discount_percentage = fields.Float(string="Discount %")
     commission_percentage = fields.Float(string="Commission %")
+
+
+#########################Added By Vishnu#######################################
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    categ_id = fields.Many2one(related='product_id.product_tmpl_id.categ_id', string='Product Category', store=True)
+
+
+# class SaleCommissionDashboard(models.Model):
+#     _name = "sale.commission.dashboard"
+#
+#     sale_user_id = fields.Many2one('res.users', string='Salesperson')
+#     target_price = fields.Float(string="Target Price", compute="_compute_sales_incentive")
+#     achieved_amount = fields.Float(string="Achieved Amount", compute="_compute_sales_incentive")
+#
+#     @api.depends("sale_user_id")
+#     def _compute_sales_incentive(self):
+#         for rec in self:
+#             sales_comm = self.env["sale.commission.exception"].search([("sale_user_id.id", "=", rec.sale_user_id.id)])
+#             rec.target_price = 0
+#             sub_categ_total_sales = sum(sales_comm.mapped('achieved_amount'))
+#             rec.achieved_amount = sub_categ_total_sales
+
+
+#########################Added By Vishnu#######################################

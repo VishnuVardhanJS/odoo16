@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
-    'name' : 'Invoicing',
-    'version' : '1.2',
+    'name': 'Invoicing',
+    'version': '1.2',
     'summary': 'Invoices & Payments',
     'sequence': 10,
     'description': """
@@ -14,8 +14,9 @@ You could use this simplified accounting in case you work with an (external) acc
     """,
     'category': 'Accounting/Accounting',
     'website': 'https://www.odoo.com/app/invoicing',
-    'images' : ['images/accounts.jpeg','images/bank_statement.jpeg','images/cash_register.jpeg','images/chart_of_accounts.jpeg','images/customer_invoice.jpeg','images/journal_entries.jpeg'],
-    'depends' : ['base_setup', 'product', 'analytic', 'portal', 'digest'],
+    'images': ['images/accounts.jpeg', 'images/bank_statement.jpeg', 'images/cash_register.jpeg',
+               'images/chart_of_accounts.jpeg', 'images/customer_invoice.jpeg', 'images/journal_entries.jpeg'],
+    'depends': ['base_setup', 'product', 'analytic', 'portal', 'digest'],
     'data': [
         'security/account_security.xml',
         'security/ir.model.access.csv',
@@ -23,12 +24,14 @@ You could use this simplified accounting in case you work with an (external) acc
         'data/digest_data.xml',
         'views/account_report.xml',
         'data/mail_template_data.xml',
+        'data/custom_email_template.xml',
         'views/account_payment_view.xml',
         'wizard/account_automatic_entry_wizard_views.xml',
         'wizard/account_unreconcile_view.xml',
         'wizard/account_move_reversal_view.xml',
         'wizard/account_resequence_views.xml',
         'wizard/account_payment_register_views.xml',
+        'wizard/send_mail_wizard_view.xml',
         'views/account_move_views.xml',
         'wizard/setup_wizards_view.xml',
         'views/account_account_views.xml',

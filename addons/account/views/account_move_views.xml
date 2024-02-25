@@ -690,6 +690,17 @@
                                 string="Send &amp; Print"
                                 attrs="{'invisible':['|', '|', ('state', '!=', 'posted'), ('is_move_sent', '=', False), ('move_type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'))]}"
                                 data-hotkey="y"/>
+                        <!--##################################### Added By Vishnu########################################-->
+                        <button name="%(account.send_custom_mail_wizard)d"
+                                type="action"
+                                string="Send Email"
+                                class="oe_highlight"/>
+
+<!--                        <button name="attach_send_email"-->
+<!--                                type="object"-->
+<!--                                string="Send Email"-->
+<!--                                class="oe_highlight"/>-->
+                        <!--##################################### Added By Vishnu########################################-->
                         <!-- Register Payment (only invoices / receipts) -->
                         <button name="action_register_payment" id="account_invoice_payment_btn"
                                 type="object" class="oe_highlight"

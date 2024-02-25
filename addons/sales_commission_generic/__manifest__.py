@@ -2,10 +2,10 @@
 # Part of BrowseInfo. See LICENSE file for full copyright and licensing details.
 
 {
-    "name" : "Sales Commission from Sales/Invoice/Payment in Odoo ",
-    "version" : "16.0.1.5",
-    'category' : "Sales",
-    "summary" : "Sale Commission for sales order invoice based commission payment based commission margin based commission for product margin commissions for sales person commission for partner Sales Agent commission Sales Commission for Users commission based on margin",
+    "name": "Sales Commission from Sales/Invoice/Payment in Odoo ",
+    "version": "16.0.1.5",
+    'category': "Sales",
+    "summary": "Sale Commission for sales order invoice based commission payment based commission margin based commission for product margin commissions for sales person commission for partner Sales Agent commission Sales Commission for Users commission based on margin",
     "description": """
     this module calculates sales commission on invoice , Sales Commission based on Product category, Product, Margin
      odoo calculates sales commission on invoice Sales Commission based on Product category Product Margin
@@ -283,12 +283,12 @@ este módulo calcula comissão de vendas na fatura, Comissão de vendas baseada 
     Pagamento por factura com base em comissões do agente
 
     """,
-    "author" : "BrowseInfo",
-    "website" : "https://www.browseinfo.com",
+    "author": "BrowseInfo",
+    "website": "https://www.browseinfo.com",
     "price": 60,
     "currency": 'EUR',
-    "depends" : ['base' , 'sale', 'sale_management', 'sale_stock', 'sale_margin'],
-    "data" :[
+    "depends": ['base', 'sale', 'sale_management', 'sale_stock', 'sale_margin'],
+    "data": [
         'security/sales_commission_security.xml',
         'security/ir.model.access.csv',
         'account/account_invoice_view.xml',
@@ -297,12 +297,13 @@ este módulo calcula comissão de vendas na fatura, Comissão de vendas baseada 
         'sale/sale_config_settings.xml',
         'sale/sale_view.xml',
         'report/commission_report.xml',
-        'report/sale_inv_comm_template.xml'
+        'report/sale_inv_comm_template.xml',
+
     ],
     "auto_install": False,
     "installable": True,
-    "live_test_url":'https://youtu.be/4BlRGFqPiO8',
-    "images":['static/description/Banner.gif'],
+    "live_test_url": 'https://youtu.be/4BlRGFqPiO8',
+    "images": ['static/description/Banner.gif'],
     'license': 'OPL-1',
 }
 

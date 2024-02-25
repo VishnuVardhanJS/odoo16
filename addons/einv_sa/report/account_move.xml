@@ -3,22 +3,22 @@
     <data>
         <!-- report action  -->
 
-<!--        <record model="ir.actions.server" id="custom_action_test">-->
-<!--            <field name="name">test Field</field>-->
-<!--            <field name="model_id" ref="account.model_account_move"/>-->
-<!--            <field name="binding_model_id" ref="account.model_account_move"/>-->
-<!--            <field name="code">-->
-<!--                if records:-->
-<!--                action = records.action_switch_invoice_into_refund_credit_note()-->
-<!--            </field>-->
-<!--            <field name="binding_view_types">form</field>-->
-<!--        </record>-->
+        <!--        <record model="ir.actions.server" id="custom_action_test">-->
+        <!--            <field name="name">test Field</field>-->
+        <!--            <field name="model_id" ref="account.model_account_move"/>-->
+        <!--            <field name="binding_model_id" ref="account.model_account_move"/>-->
+        <!--            <field name="code">-->
+        <!--                if records:-->
+        <!--                action = records.action_switch_invoice_into_refund_credit_note()-->
+        <!--            </field>-->
+        <!--            <field name="binding_view_types">form</field>-->
+        <!--        </record>-->
 
 
         <record id="action_tax_invoice_report" model="ir.actions.report">
             <field name="name">Tax Invoice</field>
             <field name="model">account.move</field>
-<!--            <field name="report_template" ref="custom_invoice_template"/>-->
+            <!--            <field name="report_template" ref="custom_invoice_template"/>-->
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">einv_sa.account_move_report</field>
             <field name="report_file">einv_sa.account_move_report</field>
@@ -27,12 +27,12 @@
             <field name="binding_type">report</field>
         </record>
 
-<!--        <template id="einv_external_layout_boxed"-->
-<!--                  inherit_id="web.external_layout_boxed">-->
-<!--            <xpath expr="//div[@class='logo']/img" position="replace">-->
-<!--                <img src="https://cdnlogo.com/logos/d/42/dkny-2.svg" alt="Logo"/>-->
-<!--            </xpath>-->
-<!--        </template>-->
+        <!--        <template id="einv_external_layout_boxed"-->
+        <!--                  inherit_id="web.external_layout_boxed">-->
+        <!--            <xpath expr="//div[@class='logo']/img" position="replace">-->
+        <!--                <img src="https://cdnlogo.com/logos/d/42/dkny-2.svg" alt="Logo"/>-->
+        <!--            </xpath>-->
+        <!--        </template>-->
 
         <template id="einv_sa.inv_header">
 
@@ -328,6 +328,54 @@
 
         </template>
 
+        <template id="einv_sa.bank_info">
+            <div style=" width: 100%; margin-top: 30px;">
+
+                <table style="width: 90%; height: 50%; border: 1px solid black; border-collapse: collapse;">
+                    <tbody>
+                        <tr>
+                            <th colspan="3" style="padding: 5px;">Banking Coordinates</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px; text-align: center;">Bank Name</td>
+                            <td style="padding: 5px;">DOHA BANK</td>
+                            <td style="padding: 5px;">DOHA BANK</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px; text-align: center;">Account Name</td>
+                            <td style="padding: 5px;">VISMAYA INFOTECH SOLUTIONS W L L</td>
+                            <td style="padding: 5px;">VISMAYA INFOTECH SOLUTIONS W L L</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px; text-align: center;">Account Number</td>
+                            <td style="padding: 5px;">0228/0910388/001/0010/000 (QAR)</td>
+                            <td style="padding: 5px;">228-910388-2-10-0 (USD)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px; text-align: center;">IBAN</td>
+                            <td style="padding: 5px;">QA30 DOHB 0228 0910 3880 0100 1000 0</td>
+                            <td style="padding: 5px;">QA15DOHB022809103880020010000</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px; text-align: center;">Branch</td>
+                            <td style="padding: 5px;">ABU HAMOUR</td>
+                            <td style="padding: 5px;">ABU HAMOUR</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px; text-align: center;">P.O BOX</td>
+                            <td style="padding: 5px;">3818 DOHA</td>
+                            <td style="padding: 5px;">3818 DOHA</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px; text-align: center;">SWIFT</td>
+                            <td style="padding: 5px;">DOHB QA QA</td>
+                            <td style="padding: 5px;">DOHB QA QA</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+
         <!-- main document template -->
         <template id="einv_sa.account_move_report_document">
             <t t-debug=""></t>
@@ -361,53 +409,11 @@
 
                         <!-- Invoice total-->
                         <t class='total_table' t-call="einv_sa.inv_total"/>
+
+                        <t class='bank_details' t-call="einv_sa.bank_info"/>
                     </div>
 
-                    <div style=" width: 100%; position: absolute; top: 700px;">
 
-                        <table style="width: 90%; height: 50%; border: 1px solid black; border-collapse: collapse;">
-                            <tbody>
-                                <tr>
-                                    <th colspan="3" style="padding: 5px;">Banking Coordinates</th>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px; text-align: center;">Bank Name</td>
-                                    <td style="padding: 5px;">DOHA BANK</td>
-                                    <td style="padding: 5px;">DOHA BANK</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px; text-align: center;">Account Name</td>
-                                    <td style="padding: 5px;">VISMAYA INFOTECH SOLUTIONS W L L</td>
-                                    <td style="padding: 5px;">VISMAYA INFOTECH SOLUTIONS W L L</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px; text-align: center;">Account Number</td>
-                                    <td style="padding: 5px;">0228/0910388/001/0010/000 (QAR)</td>
-                                    <td style="padding: 5px;">228-910388-2-10-0 (USD)</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px; text-align: center;">IBAN</td>
-                                    <td style="padding: 5px;">QA30 DOHB 0228 0910 3880 0100 1000 0</td>
-                                    <td style="padding: 5px;">QA15DOHB022809103880020010000</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px; text-align: center;">Branch</td>
-                                    <td style="padding: 5px;">ABU HAMOUR</td>
-                                    <td style="padding: 5px;">ABU HAMOUR</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px; text-align: center;">P.O BOX</td>
-                                    <td style="padding: 5px;">3818 DOHA</td>
-                                    <td style="padding: 5px;">3818 DOHA</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 5px; text-align: center;">SWIFT</td>
-                                    <td style="padding: 5px;">DOHB QA QA</td>
-                                    <td style="padding: 5px;">DOHB QA QA</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
 
 
