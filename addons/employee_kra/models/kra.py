@@ -61,7 +61,21 @@ class employee_kra(models.Model):
     kra_question_ids = fields.One2many('employee.kra.question', 'employee_kra_id', 'KRA Question')
     date = fields.Date("Date", default=fields.Date.today)
     state = fields.Selection([('draft', 'Draft'), ('submit', 'Submited To Supervisor'), ('cancel', 'Cancelled'), ('done', 'Done'), ], "State", tracking=True, default='draft')
-    
+
+    #################################Added By Vishnu####################################################
+    employee_remarks = fields.Char(string="Employer Remark : ", default="N/A")
+    is_hr_manager = fields.Boolean(compute="_acs_is_manager")
+
+    def _acs_is_manager(self):
+        is_hr_manager = self.env.user.has_group('hr.group_hr_user')
+        for rec in self:
+            rec.is_hr_manager = is_hr_manager
+
+    # def _compute_employee_remarks(self):
+    #     other_model_records = self.env['employee.kra.question'].search([])
+    #     data = other_model_records.mapped("final_score_remarks")
+    #     self.employee_remarks = data[0]
+    #################################Added By Vishnu####################################################
     def unlink(self):
         #################Changed By Vishnu#######################################
         # for rec in self:
@@ -105,23 +119,48 @@ class employee_kra_question(models.Model):
     _description = 'Employee KRA Question'
     _order = 'sequence'
 
-    @api.depends('manager_rating')
+    @api.depends('manager_rating', 'weightage')
     def _compute_total(self):
         for que in self:
             que.final_score = (que.weightage * que.manager_rating) / 10
 
-    @api.constrains('employee_rating', 'manager_rating')
+    @api.constrains('employee_rating', 'manager_rating', 'weightage')
     def _check_max_limit(self):
         for que in self:
-            if (que.employee_rating < 0.0 or que.employee_rating > 10.0):
-                raise ValidationError((_("Rating in between 0-10 only")))
-            if (que.manager_rating < 0.0 or que.manager_rating > 10.0):
-                raise ValidationError((_("Rating in between 0-10 only")))
+            if (que.employee_rating < 0.0 and que.employee_rating<que.weightage):
+                raise ValidationError((_("Rating Out Of Limit")))
+            if (que.manager_rating < 0.0 and que.employee_rating<que.weightage):
+                raise ValidationError((_("Rating Out Of Limit")))
 
     def _acs_is_manager(self):
         is_hr_manager = self.env.user.has_group('hr.group_hr_user')
         for rec in self:
             rec.is_hr_manager = is_hr_manager
+
+    #################################Added By Vishnu####################################################
+    # @api.depends('final_score')
+    # def _compute_remarks(self):
+    #     total_marks = 0
+    #     for rec in self:
+    #         total_marks += rec.final_score
+    #     temp_remark = ""
+    #
+    #     print(total_marks)
+    #     if total_marks < 50:
+    #         temp_remark = "Need Improvement"
+    #     elif 50 < total_marks < 70:
+    #         temp_remark = "Average"
+    #     elif 70 < total_marks < 90:
+    #         temp_remark = "Good"
+    #     else:
+    #         temp_remark = "Excellent"
+    #     self.final_score_remarks = temp_remark
+    #
+    #     # kra_employee_update = self.env['employee.kra'].search([])
+    #     # kra_employee_update.write({
+    #     #     'employee_remarks': self.final_score_remarks
+    #     # })
+    #################################Added By Vishnu####################################################
 
     is_hr_manager = fields.Boolean(compute=_acs_is_manager)
     name = fields.Char('Question')
@@ -141,6 +180,9 @@ class employee_kra_question(models.Model):
         ('line_section', "Section")], default=False, help="Technical field for UX purpose.")
     section_id = fields.Many2one('kra.question.section', 'Section', ondelete='cascade')
 
+    #################################Added By Vishnu####################################################
+    # final_score_remarks = fields.Char(string="Remarks : ", )
+    #################################Added By Vishnu####################################################
 
 class hr_kra(models.Model):
     _name = 'hr.kra'
