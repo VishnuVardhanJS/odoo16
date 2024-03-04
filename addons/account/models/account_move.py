@@ -560,13 +560,27 @@ class AccountMove(models.Model):
     project_name = fields.Char(string="PO Name")
     total_discount = fields.Monetary(string="Total Discount", default=0)
     amount_after_discount = fields.Monetary(string="Total Amount After Discount", compute="_compute_amount")
-
+    usd_to_qar = fields.Float(string="1 USD in QAR", default=0)
+    qar_converted = fields.Float(string="Total(in QAR)", compute="_compute_qar")
+    formatted_invoice_date = fields.Char(string='Formatted Date', compute='_compute_formatted_date')
     ####################################Added By Vishnu##################################################
 
     ####################################Added By Vishnu##################################################
 
     def attach_send_email(self):
         self.env.ref("account.tax_invoice_template").send_mail(self.id)
+
+    def _compute_formatted_date(self):
+        for record in self:
+            if record.invoice_date:
+                record.formatted_invoice_date = record.invoice_date.strftime('%d-%m-%Y')
+            else:
+                record.formatted_invoice_date = ''
+
+    @api.depends('usd_to_qar', 'amount_after_discount')
+    def _compute_qar(self):
+        for rec in self:
+            rec.qar_converted = rec.amount_after_discount * rec.usd_to_qar
     ####################################Added By Vishnu##################################################
 
     def _auto_init(self):

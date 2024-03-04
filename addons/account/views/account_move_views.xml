@@ -194,6 +194,7 @@
                            attrs="{'invisible':[('is_same_currency', '=', True)]}"/>
                     <field name="currency_id" readonly="1" groups="base.group_multi_currency" optional="hide"
                            string="Currency" attrs="{'invisible':[('is_same_currency', '=', True)]}"/>
+
                     <field name="debit" sum="Total Debit" readonly="1"/>
                     <field name="credit" sum="Total Credit" readonly="1"/>
                     <field name="tax_tag_ids" string="Tax Grids" widget="many2many_tags" width="0.5" optional="hide"/>
@@ -477,12 +478,14 @@
                            invisible="context.get('default_move_type') not in ('out_invoice', 'out_refund','out_receipt')"
                            groups="base.group_user" string="Customer"/>
                     <!--##################################### Added By Vishnu########################################-->
+
                     <field name="po_number"
                            invisible="context.get('default_move_type') not in ('out_invoice', 'out_refund','out_receipt')"
                            groups="base.group_user" string="PO Number"/>
                     <field name="project_name"
                            invisible="context.get('default_move_type') not in ('out_invoice', 'out_refund','out_receipt')"
                            groups="base.group_user" string="Project Name"/>
+                    <field name="usd_to_qar"/>
                     <!--##################################### Added By Vishnu########################################-->
                     <field name="invoice_date" optional="show"
                            invisible="context.get('default_move_type') not in ('in_invoice', 'in_refund','in_receipt')"
@@ -943,7 +946,7 @@
                                        attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund', 'out_receipt'))]}"/>
                                 <field name="project_name" nolabel="1"
                                        attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt'))]}"/>
-
+                                <field name="usd_to_qar"/>
                                 <!--##################################### Added By Vishnu########################################-->
                                 <label for="ref" string="Bill Reference"
                                        attrs="{'invisible':[('move_type', 'not in', ('in_invoice', 'in_receipt', 'in_refund'))]}"/>
@@ -1230,6 +1233,8 @@
                                             <!--  ############################Added By Vishnu#########################-->
                                             <field name="total_discount" readonly="1" force_save="1"/>
                                             <field name="amount_after_discount" readonly="1" force_save="1"/>
+                                            <field name="qar_converted" readonly="1" force_save="1" attrs="{'invisible':[('qar_converted', '=', 0.0)]}"/>
+                                            <field name="formatted_invoice_date" invisible="1"/>
                                             <!--  ############################Added By Vishnu#########################-->
 
 

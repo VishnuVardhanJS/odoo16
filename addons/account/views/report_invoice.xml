@@ -370,8 +370,8 @@
 
             <!--Total amount with all taxes-->
             <tr class="border-black o_total">
-                <td>
-                    <strong>Total</strong>
+                <td style="color: black;">
+                    <strong style="color: black;">Total</strong>
                 </td>
                 <td class="text-end">
                     <span t-esc="tax_totals['formatted_amount_total_rounded']"

@@ -34,12 +34,27 @@ class AccountMove(models.Model):
     # einv_qr = fields.Char(string="Amount tax total", compute="_compute_total", store='True', help="", readonly=True)
 
     # region odoo standard -------------------------
-    einv_sa_delivery_date = fields.Date(string='Delivery Date', default=fields.Date.context_today, copy=False)
+    einv_sa_delivery_date = fields.Date(string='Delivery Date', default=fields.Date.context_today)
     einv_sa_show_delivery_date = fields.Boolean(compute='_compute_einv_show_delivery_date')
     einv_sa_qr_code_str = fields.Char(string='Zatka QR Code', compute='_compute_eniv_qr_code_str')
     einv_sa_confirmation_datetime = fields.Datetime(string='Confirmation Date', readonly=True, copy=False)
 
     einv_sa_confirmed = fields.Boolean(compute='_compute_einv_sa_confirmation_datetime', store=True)
+
+    einv_sa_delivery_date_formatted = fields.Char(string='Formatted Date', compute='_compute_delivery_date')
+    einv_sa_qar_converted = fields.Char(string="Total In QAR", compute="_compute_total_in_qar")
+
+    def _compute_total_in_qar(self):
+        for rec in self:
+            rec.einv_sa_qar_converted = "" + '%.2f' % rec.qar_converted
+
+    @api.depends('einv_sa_delivery_date')
+    def _compute_delivery_date(self):
+        for record in self:
+            if record.einv_sa_delivery_date:
+                record.einv_sa_delivery_date_formatted = record.einv_sa_delivery_date.strftime('%d-%m-%Y')
+            else:
+                record.einv_sa_delivery_date_formatted = ''
 
     def _compute_einv_sa_confirmation_datetime(self):
         for move in self:
@@ -105,7 +120,8 @@ class AccountMove(models.Model):
         for r in self:
             r.einv_amount_sale_total = r.amount_untaxed + sum(
                 line.einv_amount_discount for line in r.invoice_line_ids)
-            r.einv_amount_discount_total = sum(line.einv_amount_discount for line in r.invoice_line_ids) + r.total_discount
+            r.einv_amount_discount_total = sum(
+                line.einv_amount_discount for line in r.invoice_line_ids) + r.total_discount
             r.einv_amount_tax_total = sum(line.einv_amount_tax for line in r.invoice_line_ids)
 
             # tags = seller_name, vat_no, inv_date, total, vat

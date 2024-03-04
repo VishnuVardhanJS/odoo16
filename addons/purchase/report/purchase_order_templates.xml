@@ -10,8 +10,6 @@
                     </div>
                     <div style="width: 100%;">
                         <div>
-                            <Strong>Name</Strong>
-                            <span>:</span>
                             <span t-field="o.partner_id.name"></span>
                         </div>
 
@@ -19,8 +17,6 @@
 
                     <div style="width: 100%;">
                         <div>
-                            <span style="width: 100px">Address</span>
-                            <span>:</span>
                             <span t-field="o.partner_id.building_no"></span>
                             <span t-field="o.partner_id.street"></span>
 
@@ -34,38 +30,49 @@
                         </div>
                     </div>
                 </div>
+                <br>
 
-                <div style="position: absolute; right: 80px; top: -5px; color: #001f5e;">
+                </br>
+
+                <div style="position: absolute; top: -5px; color: #001f5e;">
                     <div style="margin-bottom: 30px;">
                         <strong>Purchase Order</strong>
                     </div>
 
-                    <div style="width: 100%; margin-bottom: 30px;">
-                        <div>
-                            <Strong>Date</Strong>
+                    <div style="width: 100%; margin-bottom: 30px; padding-bottom: 50px;">
+                        <div style="width: 40%; float: left;">
+                            Date
+                        </div>
+                        <div style="width: 60%; float: left;">
                             <span>:</span>
                             <span t-field="o.date_order" t-options='{"format": "dd-MM-yyyy"}'></span>
                         </div>
-                        <div>
-                            <Strong>PO No</Strong>
+
+                        <div style="width: 40%; float: left;">
+                            PO No
+                        </div>
+                        <div style="width: 60%; float: left;">
                             <span>:</span>
                             <span t-field="o.po_number"></span>
                         </div>
-                        <div>
-                            <Strong>Ref No</Strong>
+
+                        <div style="width: 40%; float: left;">
+                            Ref No
+                        </div>
+                        <div style="width: 60%; float: left;">
                             <span>:</span>
                             <span t-field="o.partner_ref"></span>
                         </div>
                     </div>
 
-                    <div>
+                <div style="position: relative; margin-top: 50px;">
+                    <div style="margin-top: 50px;">
                         <div>
                             <strong>Billed To</strong>
                         </div>
                         <div style="width: 100%;">
                             <div>
-                                <Strong>Name</Strong>
-                                <span>:</span>
+
                                 <span t-field="o.picking_type_id.warehouse_id.partner_id.name"></span>
                             </div>
 
@@ -73,8 +80,7 @@
 
                         <div style="width: 100%;">
                             <div>
-                                <span style="width: 100px">Address</span>
-                                <span>:</span>
+
                                 <span t-field="o.picking_type_id.warehouse_id.partner_id.building_no"></span>
                                 <span t-field="o.picking_type_id.warehouse_id.partner_id.street"></span>
 
@@ -89,7 +95,7 @@
                             </div>
                         </div>
                     </div>
-
+                </div>
 
                 </div>
             </t>
@@ -151,11 +157,11 @@
                 <table class="table table-sm o_main_table mt-4">
                     <thead style="display: table-row-group; background-color: #001f5e;">
                         <tr>
-                            <th style="color: white;">P.O. DATE</th>
-                            <th style="color: white;">REQUISITIONER</th>
-                            <th style="color: white;">SHIPPED VIA</th>
-                            <th style="color: white;">F.O.B. POINT</th>
-                            <th style="color: white;">TERMS</th>
+                            <th class="text-start" style="color: white;">P.O. DATE</th>
+                            <th class="text-start" style="color: white;">REQUISITIONER</th>
+                            <th class="text-start" style="color: white;">SHIPPED VIA</th>
+                            <th class="text-start" style="color: white;">F.O.B. POINT</th>
+                            <th class="text-start" style="color: white;">TERMS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -178,20 +184,20 @@
                 <table class="table table-sm o_main_table mt-4">
                     <thead style="display: table-row-group; background-color: #001f5e;">
                         <tr>
-                            <th name="th_description" style="color: white;">
+                            <th name="th_description" style="color: white;" class="text-start">
                                 <strong>PART DESCRIPTION</strong>
                             </th>
-                            <th name="th_date_req" class="text-center" style="color: white;">
-                                <strong>Term</strong>
+                            <th name="th_date_req" class="text-start" style="color: white;">
+                                <strong>TERM</strong>
                             </th>
-                            <th name="th_quantity" class="text-end" style="color: white;">
+                            <th name="th_quantity" class="text-start" style="color: white;">
                                 <strong>QTY</strong>
                             </th>
-                            <th name="th_price_unit" class="text-end" style="color: white;">
-                                <strong>Unit Price</strong>
+                            <th name="th_price_unit" class="text-start" style="color: white;">
+                                <strong>UNIT PRICE</strong>
                             </th>
-                            <th name="th_amount" class="text-end" style="color: white;">
-                                <strong>Amount</strong>
+                            <th name="th_amount" class="text-start" style="color: white;">
+                                <strong>AMOUNT</strong>
                             </th>
                         </tr>
                     </thead>
@@ -205,10 +211,10 @@
 
                             <tr t-att-class="'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
                                 <t t-if="not line.display_type">
-                                    <td id="product">
+                                    <td id="product" class="text-start">
                                         <span t-field="line.name"/>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-start">
 <!--                                        &lt;!&ndash;                                    duration term&ndash;&gt;-->
 <!--                                        <span t-field="o.date_approve" t-options='{"format": "dd-MM-yyyy"}'/>-->
 <!--                                        <span>to</span>-->
@@ -216,7 +222,7 @@
 <!--                                        &lt;!&ndash;                                    duration term&ndash;&gt;-->
                                         <span t-field="o.po_term"/>
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-start">
                                         <span t-field="line.product_qty"/>
                                         <span t-field="line.product_uom.name" groups="uom.group_uom"/>
                                     </td>
@@ -258,9 +264,9 @@
 
                 <div id="total" class="row justify-content-end">
                     <div class="col-4">
-                        <table class="table table-sm table-borderless">
-                            <t t-set="tax_totals" t-value="o.tax_totals"/>
-                            <t t-call="account.document_tax_totals"/>
+                        <table class="table table-borderless" style="color: black;">
+                            <t style="color: black;" t-set="tax_totals" t-value="o.tax_totals"/>
+                            <t style="color: black;" t-call="account.document_tax_totals"/>
                         </table>
                     </div>
                 </div>

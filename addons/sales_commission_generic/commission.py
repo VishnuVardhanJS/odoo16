@@ -193,7 +193,7 @@ class SaleCommissionException(models.Model):
 
     sub_categ_id = fields.Many2one('product.category', string='Product Sub-Category',
                                    help="Exception based on product sub-category")
-    commission_precentage = fields.Float(string="Commission %")
+    commission_precentage = fields.Float(string="Old Customer Incentive %")
     below_margin_commission = fields.Float(string="Below Margin Commission %")
     above_margin_commission = fields.Float(string="Above Margin Commission %")
     margin_percentage = fields.Float(string="Target Margin %")
@@ -219,6 +219,22 @@ class SaleCommissionException(models.Model):
     invoiced_amount = fields.Float(string="Invoiced Amount", default=0)
     invoiced_payout_button = fields.Boolean(string="Invoice Payment Status", default=False)
     invoice_payout_balance = fields.Float(string="Non Invoiced Balance For Invoiced Check", default=0)
+    bonus_amount = fields.Float(string="Bonus Amount", default=0)
+
+    quarter_select = fields.Selection([
+        ('q1', 'Q1'),
+        ('q2', 'Q2'),
+        ('q3', 'Q3'),
+        ('q4', 'Q4'),
+        ('annual', "Annual")
+    ], string='Terms', copy=False, default='annual')
+
+    new_customer_comm = fields.Float(string="New Customer Incentive %", default=0)
+
+    new_cust_split1 = fields.Float(string="New Customer Sale Order Incentive %", default=50)
+    new_cust_split2 = fields.Float(string="New Customer Invoice Incentive %", compute='_compute_invoice_split')
+    old_cust_split1 = fields.Float(string="Old Customer Sale Order Incentive %", default=50)
+    old_cust_split2 = fields.Float(string="Old Customer Invoice Incentive %", compute='_compute_invoice_split')
 
     ##########################Added By Vishnu##############################
 
@@ -228,6 +244,8 @@ class SaleCommissionException(models.Model):
     def _compute_total_sales(self):
         for record in self:
             if record.based_on == 'Product Sub-Categories':
+                if record.sub_categ_id.complete_name.replace(" ", "").split('/')[1] == "Renewal":
+                    record.payout_status = True
                 if record.target_start_date == False:
                     sales = self.env['sale.order.line'].search([
                         ('product_id.categ_id.complete_name', '=', record.sub_categ_id.complete_name),
@@ -255,20 +273,50 @@ class SaleCommissionException(models.Model):
                 for order_check in temp_order_dict["order_id"]:
                     if order_check not in sales.mapped("id"):
                         # subtracts the deleted sale order amount from the unpaid invoice amount
-                        # if record.sub_categ_id.complete_name.replace(" ", "").split('/')[0] == "Licensed":
-                        #     record.non_invoiced_amount = record.non_invoiced_amount - (
-                        #             self.env["sale.order.line"].search([("id", "=", order_check)]).purchase_price / 2)
-                        #     record.invoice_payout_balance = record.invoice_payout_balance - (
-                        #             self.env["sale.order.line"].search([("id", "=", order_check)]).purchase_price / 2)
-                        #     record.invoiced_amount = record.invoiced_amount - self.env["sale.order.line"].search(
-                        #         [("id", "=", order_check)]).purchase_price
-                        # else:
-                        record.non_invoiced_amount = record.non_invoiced_amount - (
-                                self.env["sale.order.line"].search([("id", "=", order_check)]).price_total / 2)
-                        record.invoice_payout_balance = record.invoice_payout_balance - (
-                                self.env["sale.order.line"].search([("id", "=", order_check)]).price_total / 2)
-                        record.invoiced_amount = record.invoiced_amount - self.env["sale.order.line"].search(
-                            [("id", "=", order_check)]).price_total
+                        if record.sub_categ_id.complete_name.replace(" ", "").split('/')[1] == "Renewal":
+                            partner_id = self.env["sale.order.line"].search([("id", "=", order_check)]).order_partner_id
+                            partner_id_check = self.env["sale.order"].search([("partner_id", "=", partner_id.id)])
+                            if len(partner_id_check) == 1:
+                                new_cust_calc = (
+                                        (self.env["sale.order.line"].search([("id", "=", order_check)]).price_total) * (
+                                        record.new_customer_comm / 100))
+                                regualar_calc = (
+                                        (self.env["sale.order.line"].search([("id", "=", order_check)]).price_total) * (
+                                        record.commission_precentage / 100))
+                                new_cust_add = ((new_cust_calc - regualar_calc) / (record.commission_precentage / 100))
+                                amount_add = self.env["sale.order.line"].search(
+                                    [("id", "=", order_check)]).price_total + new_cust_add
+                                record.invoice_payout_balance = record.invoice_payout_balance - amount_add
+                                record.invoiced_amount = record.invoiced_amount - amount_add
+                            else:
+                                record.invoice_payout_balance = record.invoice_payout_balance - (
+                                    self.env["sale.order.line"].search([("id", "=", order_check)]).price_total)
+                                record.invoiced_amount = record.invoiced_amount - (
+                                    self.env["sale.order.line"].search([("id", "=", order_check)]).price_total)
+                            # record.payout_status = True
+                        else:
+                            partner_id = self.env["sale.order.line"].search([("id", "=", order_check)]).order_partner_id
+                            partner_id_check = self.env["sale.order"].search([("partner_id", "=", partner_id.id)])
+                            if len(partner_id_check) == 1:
+                                new_cust_calc = (
+                                        (self.env["sale.order.line"].search([("id", "=", order_check)]).price_total) * (
+                                        record.new_customer_comm / 100))
+                                regualar_calc = (
+                                        (self.env["sale.order.line"].search([("id", "=", order_check)]).price_total) * (
+                                        record.commission_precentage / 100))
+                                new_cust_add = ((new_cust_calc - regualar_calc) / (record.commission_precentage / 100))
+                                amount_add = self.env["sale.order.line"].search(
+                                    [("id", "=", order_check)]).price_total + new_cust_add
+                                record.non_invoiced_amount = record.non_invoiced_amount - (amount_add * (record.new_cust_split1 / 100))
+                                record.invoice_payout_balance = record.invoice_payout_balance - (amount_add * (record.new_cust_split2 / 100))
+                                record.invoiced_amount = record.invoiced_amount - amount_add
+                            else:
+                                record.non_invoiced_amount = record.non_invoiced_amount - (
+                                        self.env["sale.order.line"].search([("id", "=", order_check)]).price_total * (record.old_cust_split1 / 100))
+                                record.invoice_payout_balance = record.invoice_payout_balance - (
+                                        self.env["sale.order.line"].search([("id", "=", order_check)]).price_total * (record.old_cust_split2 / 100))
+                                record.invoiced_amount = record.invoiced_amount - self.env["sale.order.line"].search(
+                                    [("id", "=", order_check)]).price_total
 
                         # removes the order id from the order history if the sale order is cancelled
                         temp_order_dict["order_id"].remove(order_check)
@@ -283,26 +331,60 @@ class SaleCommissionException(models.Model):
                         # disables the payout button if the unpaid invoice amount becomes 0
                         if record.non_invoiced_amount == 0:
                             record.payout_status = True
+                        if record.invoice_payout_balance == 0:
+                            record.invoiced_payout_button = True
 
                 # To add the newly added amount to the non invoiced amount
                 for id_rec in sales.mapped("id"):
                     if id_rec not in temp_order_dict["order_id"]:
                         temp_order_dict["order_id"].append(id_rec)
                         record.order_history = json.dumps(temp_order_dict)
-                        # if record.sub_categ_id.complete_name.replace(" ", "").split('/')[0] == "Licensed":
-                        #     record.non_invoiced_amount = record.non_invoiced_amount + (
-                        #             self.env["sale.order.line"].search([("id", "=", id_rec)]).purchase_price / 2)
-                        #     record.invoice_payout_balance = record.invoice_payout_balance + (
-                        #             self.env["sale.order.line"].search([("id", "=", id_rec)]).purchase_price / 2)
-                        # else:
-                        record.non_invoiced_amount = record.non_invoiced_amount + (
-                                self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total / 2)
-                        record.invoice_payout_balance = record.invoice_payout_balance + (
-                                self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total / 2)
-                        print("Non Invoiced : ", record.non_invoiced_amount)
-                        print("Invoice Payout : ", record.invoice_payout_balance)
+                        if record.sub_categ_id.complete_name.replace(" ", "").split('/')[1] == "Renewal":
+                            # record.non_invoiced_amount = record.non_invoiced_amount + (
+                            #         self.env["sale.order.line"].search([("id", "=", id_rec)]).purchase_price / 2)
+                            partner_id = self.env["sale.order.line"].search([("id", "=", id_rec)]).order_partner_id
+                            partner_id_check = self.env["sale.order"].search([("partner_id", "=", partner_id.id)])
+                            if len(partner_id_check) == 1:
+                                new_cust_calc = (
+                                        (self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total) * (
+                                        record.new_customer_comm / 100))
+                                regualar_calc = (
+                                        (self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total) * (
+                                        record.commission_precentage / 100))
+                                new_cust_add = ((new_cust_calc - regualar_calc) / (record.commission_precentage / 100))
+                                amount_add = self.env["sale.order.line"].search(
+                                    [("id", "=", id_rec)]).price_total + new_cust_add
+                                record.invoice_payout_balance = record.invoice_payout_balance + amount_add
+                            else:
+                                record.invoice_payout_balance = record.invoice_payout_balance + (
+                                    self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total)
+                            # record.payout_status = True
+                        else:
+                            partner_id = self.env["sale.order.line"].search([("id", "=", id_rec)]).order_partner_id
+                            partner_id_check = self.env["sale.order"].search([("partner_id", "=", partner_id.id)])
+                            if len(partner_id_check) == 1:
+                                new_cust_calc = (
+                                        (self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total) * (
+                                        record.new_customer_comm / 100))
+                                regualar_calc = (
+                                        (self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total) * (
+                                        record.commission_precentage / 100))
+                                new_cust_add = ((new_cust_calc - regualar_calc) / (record.commission_precentage / 100))
+                                amount_add = self.env["sale.order.line"].search(
+                                    [("id", "=", id_rec)]).price_total + new_cust_add
+                                record.non_invoiced_amount = record.non_invoiced_amount + (amount_add * (record.new_cust_split1 / 100))
+                                record.invoice_payout_balance = record.invoice_payout_balance + (amount_add * (record.new_cust_split2 / 100))
+                            else:
+                                record.non_invoiced_amount = record.non_invoiced_amount + (
+                                        self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total * (record.old_cust_split1 / 100))
+                                record.invoice_payout_balance = record.invoice_payout_balance + (
+                                        self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total * (record.old_cust_split2 / 100))
+
                         record.last_order = self.env["sale.order.line"].search([("id", "=", id_rec)]).order_id.id
                         # makes the payout button visible so that it can be used again even after the initial payout
+                        if record.sub_categ_id.complete_name.replace(" ", "").split('/')[1] == "Renewal":
+                            record.payout_status = True
+                        record.invoiced_payout_button = False
                         record.payout_status = False
 
             elif record.based_on == 'Product Categories':
@@ -335,22 +417,23 @@ class SaleCommissionException(models.Model):
                 for order_check in temp_order_dict["order_id"]:
                     if order_check not in categ_sales.mapped("id"):
                         # subtracts the deleted sale order amount from the unpaid invoice amount
-                        # if record.categ_id.complete_name.replace(" ", "").split('/')[0] == "Licensed":
-                        #     record.non_invoiced_amount = record.non_invoiced_amount - (
-                        #                 self.env["sale.order.line"].search(
-                        #                     [("id", "=", order_check)]).purchase_price / 2)
-                        #     record.invoice_payout_balance = record.invoice_payout_balance - (
-                        #                 self.env["sale.order.line"].search(
-                        #                     [("id", "=", order_check)]).purchase_price / 2)
-                        #     record.invoiced_amount = record.invoiced_amount - self.env["sale.order.line"].search(
-                        #         [("id", "=", order_check)]).purchase_price
-                        # else:
-                        record.non_invoiced_amount = record.non_invoiced_amount - (
+                        if record.categ_id.complete_name.replace(" ", "").split('/')[1] == "Renewal":
+                            # record.non_invoiced_amount = record.non_invoiced_amount - (
+                            #             self.env["sale.order.line"].search(
+                            #                 [("id", "=", order_check)]).purchase_price / 2)
+                            record.invoice_payout_balance = record.invoice_payout_balance - (
+                                    self.env["sale.order.line"].search(
+                                        [("id", "=", order_check)]).price_total / 2)
+                            record.invoiced_amount = record.invoiced_amount - self.env["sale.order.line"].search(
+                                [("id", "=", order_check)]).price_total
+                            record.payout_status = True
+                        else:
+                            record.non_invoiced_amount = record.non_invoiced_amount - (
                                     self.env["sale.order.line"].search([("id", "=", order_check)]).price_total / 2)
-                        record.invoice_payout_balance = record.invoice_payout_balance - (
+                            record.invoice_payout_balance = record.invoice_payout_balance - (
                                     self.env["sale.order.line"].search([("id", "=", order_check)]).price_total / 2)
-                        record.invoiced_amount = record.invoiced_amount - self.env["sale.order.line"].search(
-                            [("id", "=", order_check)]).price_total
+                            record.invoiced_amount = record.invoiced_amount - self.env["sale.order.line"].search(
+                                [("id", "=", order_check)]).price_total
 
                         # removes the order id from the order history if the sale order is cancelled
                         temp_order_dict["order_id"].remove(order_check)
@@ -365,27 +448,30 @@ class SaleCommissionException(models.Model):
                         # disables the payout button if the unpaid invoice amount becomes 0
                         if record.non_invoiced_amount == 0:
                             record.payout_status = True
+                        if record.invoice_payout_balance == 0:
+                            record.invoiced_payout_button = True
 
                 for id_rec in categ_sales.mapped("id"):
                     if id_rec not in temp_order_dict["order_id"]:
                         temp_order_dict["order_id"].append(id_rec)
                         record.order_history = json.dumps(temp_order_dict)
-                        # if record.categ_id.complete_name.replace(" ", "").split('/')[0] == "Licensed":
-                        #     record.non_invoiced_amount = record.non_invoiced_amount + (
-                        #             self.env["sale.order.line"].search([("id", "=", id_rec)]).purchase_price / 2)
-                        #     record.invoice_payout_balance = record.invoice_payout_balance + (
-                        #             self.env["sale.order.line"].search([("id", "=", id_rec)]).purchase_price / 2)
-                        # else:
-                        record.non_invoiced_amount = record.non_invoiced_amount + (
-                                self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total / 2)
-                        record.invoice_payout_balance = record.invoice_payout_balance + (
-                                self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total / 2)
+                        if record.categ_id.complete_name.replace(" ", "").split('/')[1] == "Renewal":
+                            # record.non_invoiced_amount = record.non_invoiced_amount + (
+                            #         self.env["sale.order.line"].search([("id", "=", id_rec)]).purchase_price / 2)
+                            record.invoice_payout_balance = record.invoice_payout_balance + (
+                                self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total)
+                        else:
+                            record.non_invoiced_amount = record.non_invoiced_amount + (
+                                    self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total / 2)
+                            record.invoice_payout_balance = record.invoice_payout_balance + (
+                                    self.env["sale.order.line"].search([("id", "=", id_rec)]).price_total / 2)
                         record.last_order = self.env["sale.order.line"].search([("id", "=", id_rec)]).order_id.id
                         record.payout_status = False
+                        record.invoiced_payout_button = False
 
                 # Disables the payout button for the Product Category Option
                 record.payout_status = True  # Comment this line to enable payout based on Category if needed in Future
-
+                record.invoiced_payout_button = True
             else:
                 record.achieved_amount = 0
 
@@ -398,6 +484,12 @@ class SaleCommissionException(models.Model):
                 rec.achieved_percentage += (rec.achieved_amount / rec.price) * 100
             except ZeroDivisionError:
                 rec.achieved_percentage = 0.0
+
+    @api.depends('old_cust_split1', 'new_cust_split1')
+    def _compute_invoice_split(self):
+        for rec in self:
+            rec.old_cust_split2 = 100.0 - rec.old_cust_split1
+            rec.new_cust_split2 = 100.0 - rec.new_cust_split1
 
     # Function which runs on click of the payout button
     def Payout_Button(self):
@@ -435,10 +527,7 @@ class SaleCommissionException(models.Model):
                         invoice_commission_data['categ_id'] = rec.categ_id.id
 
                     elif rec.based_on == 'Product Sub-Categories':
-                        name = 'Commission Exception' + ' ' + 'with' + ' "' + tools.ustr(
-                            rec.based_on_2) + ' "' + ' ' + 'for' + ' ' + tools.ustr(
-                            rec.based_on) + ' "' + tools.ustr(
-                            rec.sub_categ_id.complete_name) + '" @' + tools.ustr(
+                        name = 'Incentive for Completed Sales Orders' + '" @' + tools.ustr(
                             rec.commission_precentage) + '%'
 
                         invoice_commission_data['name'] = name
@@ -461,8 +550,11 @@ class SaleCommissionException(models.Model):
                     if rec.invoiced_amount < rec.price and (
                             rec.invoiced_amount + rec.non_invoiced_amount + rec.invoice_payout_balance) > rec.price:
                         over_achieved_amount = rec.non_invoiced_amount + rec.invoiced_amount - rec.price
-                        above_price_commission = over_achieved_amount * (
-                                rec.price_percentage / 100)
+                        try:
+                            above_price_commission = over_achieved_amount * (
+                                    rec.price_percentage / 100)
+                        except ZeroDivisionError:
+                            above_price_commission = 0
                         commission_amount = ((rec.non_invoiced_amount - over_achieved_amount) * (
                                 rec.commission_precentage / 100)) + above_price_commission
                     elif rec.achieved_percentage > 100:
@@ -531,11 +623,8 @@ class SaleCommissionException(models.Model):
                             invoice_commission_data['categ_id'] = rec.categ_id.id
 
                         elif rec.based_on == 'Product Sub-Categories':
-                            name = 'Commission Exception' + ' ' + 'with' + ' "' + tools.ustr(
-                                rec.based_on_2) + ' "' + ' ' + 'for' + ' ' + tools.ustr(
-                                rec.based_on) + ' "' + tools.ustr(
-                                rec.sub_categ_id.complete_name) + '" @' + tools.ustr(
-                                rec.commission_precentage) + '%'
+                            name = 'Incentive for Collecting Revenue' + '" @' + tools.ustr(
+                                rec.new_customer_comm) + '%'
 
                             invoice_commission_data['name'] = name
                             invoice_commission_data['sub_categ_id'] = rec.sub_categ_id.id
@@ -553,19 +642,22 @@ class SaleCommissionException(models.Model):
                         if rec.invoiced_amount < rec.price and (
                                 rec.invoiced_amount + rec.non_invoiced_amount + rec.invoice_payout_balance) > rec.price:
                             over_achieved_amount = rec.invoice_payout_balance + rec.invoiced_amount - rec.price
-                            above_price_commission = over_achieved_amount * (
-                                    rec.price_percentage / 100)
+                            try:
+                                above_price_commission = over_achieved_amount * (
+                                        rec.price_percentage / 100)
+                            except ZeroDivisionError:
+                                above_price_commission = 0
                             commission_amount = ((rec.invoice_payout_balance - over_achieved_amount) * (
                                     rec.commission_precentage / 100)) + above_price_commission
                         elif rec.achieved_percentage > 100:
                             # above_price_commission = rec.non_invoiced_amount * (rec.price_percentage / 100)
                             commission_amount = (rec.invoice_payout_balance * (
-                                    rec.price_percentage / 100))
+                                    rec.price_percentage / 100)) + rec.bonus_amount
+                            rec.bonus_amount = 0
                         else:
                             commission_amount = rec.invoice_payout_balance * (rec.commission_precentage / 100)
 
                         invoice_commission_data['commission_amount'] = commission_amount
-
                         invoice_commission_obj.create(invoice_commission_data)
                         rec.invoiced_amount = rec.invoiced_amount + rec.invoice_payout_balance
                         rec.invoice_payout_balance = 0  # Resets the invoiced amount for the next payout

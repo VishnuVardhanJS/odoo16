@@ -79,22 +79,23 @@
             <field name="model">sale.commission.exception</field>
             <field name="arch" type="xml">
                 <tree string="Sales Commission Exceptions">
-                    <field name="sale_user_id" widget="many2one_avatar_user"/>
-                    <field name="based_on"/>
-                    <field name="based_on_2"/>
-                    <field name="product_id" attrs="{'invisible': [('based_on','!=', 'Products')],
-													'required': [('based_on','==', 'Products')]}"/>
+                    <field name="sale_user_id" widget="many2one_avatar_user" invisible="1"/>
+                    <field name="based_on" invisible="1"/>
+                    <field name="based_on_2" invisible="1"/>
+                    <!--                    <field name="product_id" attrs="{'invisible': [('based_on','!=', 'Products')],-->
+                    <!--													'required': [('based_on','==', 'Products')]}"/>-->
                     <field name="category_store" widget="many2many_tags" invisible="1"/>
                     <field name="categ_id" attrs="{'invisible': [('based_on','!=', 'Product Categories')],
 												   'required': [('based_on','==', 'Product Categories')]}"/>
                     <field name="sub_categ_id" attrs="{'invisible': [('based_on','!=', 'Product Sub-Categories')],
 													  'required': [('based_on','==', 'Product Sub-Categories')]}"/>
-                    <field name="target_start_date" widget="daterange"
+                    <field name="target_start_date" widget="date"
                            options="{'related_end_date': 'target_end_date'}"/>
-                    <field name="target_end_date" widget="daterange"
+                    <field name="target_end_date" widget="date"
                            options="{'related_start_date': 'target_start_date'}"/>
-<!--                    <field name="invoice_delay"/>-->
-                    <field name="commission_precentage"/>
+                    <field name="quarter_select"/>
+                    <!--                    <field name="invoice_delay"/>-->
+                    <field name="commission_precentage" invisible="1"/>
                     <field name="target_percentage"/>
                     <field name="payout_status" invisible="1"/>
                     <field name="invoiced_payout_button" invisible="1"/>
@@ -103,11 +104,12 @@
                     <!--				   <field name="above_margin_commission"/>-->
                     <!--				   <field name="below_margin_commission"/>-->
                     <field name="price"/>
+                    <field name="bonus_amount" invisible="1"/>
 
                     <field name="achieved_amount"/>
                     <field name="achieved_percentage" widget="progressbar"/>
 
-                    <field name="price_percentage"/>
+                    <field name="price_percentage" invisible="1"/>
                     <button name="Payout_Button" string="Payout" type="object"
                             confirm="Are you sure you want to payout?"
                             attrs="{'invisible': [('payout_status','=', True)]}"/>
@@ -134,21 +136,31 @@
                                 <!--  <field name="order_category" invisible="1"/> -->
                                 <field name="categ_id"
                                        attrs="{'invisible': [('based_on','!=', 'Product Categories')],'required': [('based_on','==', 'Product Categories')]}"/>
-                                <field name="product_id"
-                                       attrs="{'invisible': [('based_on','!=', 'Products')],'required': [('based_on','==', 'Products')]}"/>
+                                <!--                                <field name="product_id"-->
+                                <!--                                       attrs="{'invisible': [('based_on','!=', 'Products')],'required': [('based_on','==', 'Products')]}"/>-->
                                 <field name="sub_categ_id"
                                        attrs="{'invisible': [('based_on','!=', 'Product Sub-Categories')],'required': [('based_on','==', 'Product Sub-Categories')]}"/>
-                            </group>
-                            <group>
-                                <!--                                <field name="commission_precentage"-->
-                                <!--                                       attrs="{'invisible': [('based_on_2','!=', 'Commission Exception')],'required': [('based_on_2','==', 'Commission Exception')]}"/>-->
+                                <field name="quarter_select"/>
                                 <field name="target_start_date" widget="daterange"
                                        options="{'related_end_date': 'target_end_date'}"/>
                                 <field name="target_end_date" widget="daterange"
                                        options="{'related_start_date': 'target_start_date'}"/>
-<!--                                <field name="invoice_delay"/>-->
-                                <field name="commission_precentage"/>
+                                <field name="price"
+                                       attrs="{'invisible': [('based_on_2','!=', 'Fix Price')],'required': [('based_on_2','==', 'Fix Price')]}"
+                                       placeholder="Target Price" style="width: 60%%"/>
                                 <field name="target_percentage"/>
+
+                            </group>
+                            <group>
+                                <!--                                <field name="commission_precentage"-->
+                                <!--                                       attrs="{'invisible': [('based_on_2','!=', 'Commission Exception')],'required': [('based_on_2','==', 'Commission Exception')]}"/>-->
+                                <field name="commission_precentage"/>
+                                <field name="old_cust_split1" />
+                                <field name="old_cust_split2" />
+                                <field name="new_customer_comm" />
+                                <field name="new_cust_split1" />
+                                <field name="new_cust_split2" />
+                                <!--                                <field name="invoice_delay"/>-->
                                 <field name="margin_percentage"
                                        attrs="{'invisible': [('based_on_2','!=', 'Margin')],'required': [('based_on_2','==', 'Margin')]}"
                                        placeholder="Percentage" style="width: 60%%"/>
@@ -158,9 +170,7 @@
                                 <field name="below_margin_commission"
                                        attrs="{'invisible': [('based_on_2','!=', 'Margin')],'required': [('based_on_2','==', 'Margin')]}"
                                        placeholder="Below Margin Commission%" style="width: 60%%"/>
-                                <field name="price"
-                                       attrs="{'invisible': [('based_on_2','!=', 'Fix Price')],'required': [('based_on_2','==', 'Fix Price')]}"
-                                       placeholder="Target Price" style="width: 60%%"/>
+                                <field name="bonus_amount" attrs="{'invisible': [('quarter_select','=', 'annual')]}"/>
                                 <field name="price_percentage"
                                        attrs="{'invisible': [('based_on_2','!=', 'Fix Price')],'required': [('based_on_2','==', 'Fix Price')]}"
                                        placeholder="Price%" style="width: 60%%"/>
@@ -265,46 +275,6 @@
             <field name="binding_model_id" ref="model_invoice_sale_commission"/>
             <field name="groups_id" eval="[(4, ref('sales_commission_generic.group_sales_commission_manager'))]"/>
         </record>
-
-
-        <!--        &lt;!&ndash;                Added By Vishnu&ndash;&gt;-->
-
-        <!--        <record id="sales_incentive_dashboard_tree" model="ir.ui.view">-->
-        <!--            <field name="name">sales.incentive.dashboard.tree</field>-->
-        <!--            <field name="model">sale.commission.dashboard</field>-->
-        <!--            <field name="arch" type="xml">-->
-        <!--                <tree string="Sales Incentive">-->
-        <!--                    <field name="sale_user_id" widget="many2one_avatar_user"/>-->
-        <!--                    <field name="target_price"/>-->
-        <!--                    &lt;!&ndash; Add more fields as needed &ndash;&gt;-->
-        <!--                </tree>-->
-        <!--            </field>-->
-        <!--        </record>-->
-        <!--&lt;!&ndash;        <record id="sales_incentive_dashboard_form" model="ir.ui.view">&ndash;&gt;-->
-        <!--&lt;!&ndash;            <field name="name">sales.incentive.dashboard.form</field>&ndash;&gt;-->
-        <!--&lt;!&ndash;            <field name="model">sale.commission.dashboard</field>&ndash;&gt;-->
-        <!--&lt;!&ndash;            <field name="arch" type="xml">&ndash;&gt;-->
-        <!--&lt;!&ndash;                <tree string="Sales Incentive">&ndash;&gt;-->
-        <!--&lt;!&ndash;&lt;!&ndash;                    <field name="sale_user_id" widget="many2one_avatar_user"/>&ndash;&gt;&ndash;&gt;-->
-        <!--&lt;!&ndash;                    &lt;!&ndash; Add more fields as needed &ndash;&gt;&ndash;&gt;-->
-        <!--&lt;!&ndash;                </tree>&ndash;&gt;-->
-        <!--&lt;!&ndash;            </field>&ndash;&gt;-->
-        <!--&lt;!&ndash;        </record>&ndash;&gt;-->
-
-        <!--        <record id="sales_incentive_dashboard" model="ir.actions.act_window">-->
-        <!--            <field name="name">Sales Incentive Dashboard</field>-->
-        <!--            <field name="res_model">sale.commission.dashboard</field>-->
-        <!--            <field name="view_mode">tree</field>-->
-        <!--            <field name="view_id" ref="sales_incentive_dashboard_tree"/>-->
-
-        <!--        </record>-->
-
-
-        <!--        <menuitem-->
-        <!--                action="sales_incentive_dashboard"-->
-        <!--                id="menu_action_commission_report_dashboard"-->
-        <!--                parent="sale.menu_sale_report"/>-->
-        <!--        &lt;!&ndash;                Added By Vishnu&ndash;&gt;-->
 
     </data>
 </odoo>

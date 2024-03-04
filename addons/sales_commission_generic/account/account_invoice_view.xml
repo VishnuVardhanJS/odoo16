@@ -39,14 +39,14 @@
 					<field name="user_id"/>
 					<field name="invoice_id"/>
 					<field name="invoice_line_id" invisible="1"/>
-					<field name="order_id"/>
+					<field name="order_id" invisible="1"/>
 					<field name="order_line_id" invisible="1"/>
-					<field name="commission_id"/>
-					<field name="type_name"/>
+					<field name="commission_id" invisible="1"/>
+					<field name="type_name" invisible="1"/>
 					<field name="comm_type" />
-					<field name="product_id"/>
-					<field name="partner_type"/>
-					<field name="partner_id"/>
+					<field name="product_id" invisible="1"/>
+					<field name="partner_type" invisible="1"/>
+					<field name="partner_id" invisible="1"/>
 					<field name="categ_id"/>
 					<field name="sub_categ_id"/>
 					<field name="state" decoration-success="state == 'invoiced'" decoration-info="state == 'to_invoice'" widget="badge"/>
@@ -70,14 +70,14 @@
 							<field name="user_id"/>
 							<field name="invoice_id"/>
 							<field name="invoice_line_id" invisible="1"/>
-							<field name="order_id"/>
+							<field name="order_id" invisible="1"/>
 							<field name="order_line_id" invisible="1"/>
-							<field name="commission_id"/>
-							<field name="type_name"/>
+							<field name="commission_id" invisible="1"/>
+							<field name="type_name" invisible="1"/>
 							<field name="comm_type" />
-							<field name="product_id"/>
-							<field name="partner_type"/>
-							<field name="partner_id"/>
+							<field name="product_id" invisible="1"/>
+							<field name="partner_type" invisible="1"/>
+							<field name="partner_id" invisible="1"/>
 							<field name="categ_id"/>
 							<field name="sub_categ_id"/>
 							<field name="invoiced" />
